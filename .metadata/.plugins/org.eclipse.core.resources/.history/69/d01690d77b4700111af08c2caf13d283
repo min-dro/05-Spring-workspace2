@@ -1,0 +1,18 @@
+package com.kh.myweb.member.model.dao;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import com.kh.myweb.member.model.vo.Member;
+
+// @Component
+@Repository // 저장소라는 뜻, 외부 메체인 DB 와 입출력이 일어나는 DAO 역할을 하겠다.
+public class MemberDao {
+
+	public Member loginMember(SqlSession sqlsession, Member m) {
+		 
+		return sqlsession.insert("mapper/loginMember", m);
+		
+	}
+	
+}

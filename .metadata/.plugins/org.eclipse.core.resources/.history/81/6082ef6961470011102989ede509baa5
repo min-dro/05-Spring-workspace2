@@ -1,0 +1,20 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Web</title>
+</head>
+<body>
+
+	<%-- 모든 페이지마다 상단에 include 될 menubar 만들기 --%>
+		
+	<br>
+	
+	<h1 align="center">Welcome to H Class</h1>
+
+	<%-- 로그인 관련 영역 --%>
+
+</body>
+</html>

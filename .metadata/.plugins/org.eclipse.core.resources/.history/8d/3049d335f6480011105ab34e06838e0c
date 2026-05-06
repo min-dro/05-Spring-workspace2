@@ -1,0 +1,19 @@
+package com.kh.myweb.config;
+
+/*
+ * * Bean
+ * - 스프링에서 쓰이는 자바 객체를 Bean 이라고 부른다.
+ * - 클래스 별로 Bean 으로 등록하면 내가 필요할 때 마다 
+ *   알아서 (@Autowired) 그 객체를 스프링이 생성해서 주입해줌!! (DI)
+ * 
+ * * 스프링에서의 Bean 등록 방법
+ * 1. 클래스 선언분 상단에 @Component 어노테이션을 붙여 등록하기
+ *    (상황에 따라 @Controller, @Service, @Repository 으로 대체될 수 있음)
+ *    단, 내가 직접 만든 코드에만 적용 가능한 방법임!!
+ * 2.
+ * 3.
+ */
+
+public class SecurityConfig {
+
+}

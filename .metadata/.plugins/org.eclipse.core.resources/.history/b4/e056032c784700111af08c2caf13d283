@@ -1,0 +1,18 @@
+package com.kh.myweb.member.model.service;
+
+import org.springframework.stereotype.Service;
+
+import com.kh.myweb.member.model.vo.Member;
+
+// @Component // Bean 등록용 어노테이션 : 내가 필요할 때 스프링이 객체를 생성할 수 있도록 유도
+@Service // 마찬가지로 Bean 등록용 어노테이션, Service 단 역할을 한
+public class MemberService {
+
+	public Member loginMember(Member m) {
+		
+		System.out.println("잘 호출되나?");
+		
+		return null;
+	}
+	
+}

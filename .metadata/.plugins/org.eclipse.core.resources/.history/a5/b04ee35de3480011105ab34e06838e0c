@@ -1,0 +1,24 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<%-- 모든 페이지마다 상단에는 menubar.jsp 가 include 되야험!! --%>
+
+
+	<jsp:include page="../common/menubar.jsp" />
+	<!-- ../ 현재 이 폴더로부터 한겹 빠져나가겠다. -->
+	
+	<!-- 여기서부터 실제 회원가입 페이지 화면 짜기 -->
+	<div class="outer">
+		
+		<br>
+		<h2 align="center">회원가입</h2>
+	</div>
+</body>
+</html>
