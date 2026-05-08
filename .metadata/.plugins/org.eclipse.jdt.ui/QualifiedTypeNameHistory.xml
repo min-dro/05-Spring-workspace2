@@ -3,4 +3,5 @@
     <fullyQualifiedTypeName name="org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration"/>
     <fullyQualifiedTypeName name="org.springframework.security.config.annotation.web.builders.HttpSecurity"/>
     <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="com.kh.myweb.common.template.XssDefencePolicy"/>
 </qualifiedTypeNameHistroy>

@@ -94,5 +94,33 @@
 
 	<br><br>
 	
+	<script>
+		$(function() {
+			
+			// 게시글 1개를 나타내는 tr 요소에 클릭이벤트 부여
+			// > 해당 게시글 번호에 해당하는 게시글 상세보기 요청
+			$(".list-area>tbody>tr").click(function() {
+				
+				// console.log("클릭됨!!");
+				// console.log($(this).children().eq(0).text());
+				
+				// 방금 클릭당한 글번호를 뽑아서 변수에 담기
+				let nno = $(this).children().eq(0).text();
+				// > 글번호가 Primary Key 제약조건이기 때문에 전달값으로 넘길 것!!
+				
+				// 쿼리스트링 방식 적용
+				// location.href = "/myweb/notice/detail?nno=" + nno;
+				// > href 로 요청을 보내면 GET 방식으로
+				//   내가 필요하다면 요청 시 전달값을 쿼리스트링으로 직접 명시해서 보낸다.
+				
+				// Path Variable 방식 적용
+				location.href = "/myweb/notice/detail/" + nno;
+				// > 요청 url 주소 사이에 글번호를 마치 url 주소의 일부인것 마냥 같이 보낸다.
+				
+			});
+			
+		});
+	</script>
+	
 </body>
 </html>

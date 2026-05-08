@@ -1,0 +1,25 @@
+package com.kh.myweb.notice.model.dao;
+
+import java.util.ArrayList;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.kh.myweb.notice.model.vo.Notice;
+
+@Repository
+public class NoticeDao {
+
+	public static ArrayList<Notice> selectNoticeList(SqlSessionTemplate sqlSession) {
+
+		return (ArrayList)(sqlSession.selectList("noticeMapper.selectNoticeList", sqlSession));
+	}
+
+	public int insertNotice(SqlSessionTemplate sqlSession, Notice n) {
+		
+		return sqlSession.insert("noticeMapper.insertNotice", n);
+	}
+
+	
+	
+}

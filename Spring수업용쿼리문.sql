@@ -66,3 +66,48 @@ SELECT NOTICE_NO
   JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
  WHERE N.STATUS = 'Y'
  ORDER BY NOTICE_NO DESC
+ 
+-- 7. 공지사항 작성용 쿼리문
+INSERT INTO NOTICE(NOTICE_NO
+                 , NOTICE_TITLE
+                 , NOTICE_CONTENT
+                 , NOTICE_WRITER)
+            VALUES(SEQ_NNO.NEXTVAL
+                 , ?
+                 , ?
+                 , ?)
+                 
+-- 8. 공지사항 조회수 증가용 쿼리문
+-- 기존의 조회수에 1 증가한값을 다시 대입
+UPDATE NOTICE
+   SET COUNT = COUNT + 1
+ WHERE NOTICE_NO = ?
+   AND STATUS = 'Y'
+   
+-- 9. 공지사항 상세조회용 쿼리문
+-- 제목, 작성자의 아이디, 작성일, 내용이 출력되야함
+-- 눈에 노출되지는 않지만 상세보기 페이지에서 추후 수정, 삭제까지 이어갈려면
+-- PRIMARY KEY 제약조건에 해당하는 컬럼인 NOTICE_NO 까지 같이 조회해야함!!
+SELECT NOTICE_NO
+     , NOTICE_TITLE
+     , NORICE_CONTENT
+     , USER_ID
+     , CREATE_DATE
+  FROM NOTICE N
+  JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
+ WHERE NOTICE_NO = ?
+   AND N.STATUS = 'Y'
+   
+-- 10. 공지사항 수정용 쿼리문
+UPDATE NOTICE
+   SET NOTICE_TITLE = ?
+     , NOTICE_CONTENT = ?
+ WHERE NOTICE_NO = ?
+   AND STATUS = 'Y'
+   
+-- 11. 공자사항 삭제용 쿼리문
+-- 회원탈퇴와 마찬가지로 공지사항 삭제 또한 UPDATE 로 처리할 것
+UPDATE NOTICE
+   SET STATUS = 'N'
+ WHERE NOTICE_NO = ?
+   AND STATUS = 'Y'
