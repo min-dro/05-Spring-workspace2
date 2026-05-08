@@ -6,13 +6,15 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
+	/*
 	.outer {
 		width : 1000px;
 		border : 1px dotted lightgray;
 		margin : auto;
 		margin-top : 50px;
 	}
-
+	*/
+	
 	#mypage-form table {
 		margin : auto;
 	}
@@ -104,9 +106,11 @@
 				<button type="submit"
 						class="btn btn-primary btn-sm">정보변경</button>
 				<button type="button"
-						class="btn btn-warning btn-sm">비밀번호변경</button>
+						class="btn btn-warning btn-sm"
+						data-toggle="modal" data-target="#updatePwdForm">비밀번호변경</button>
 				<button type="button"
-						class="btn btn-danger btn-sm">회원탈퇴</button>
+						class="btn btn-danger btn-sm"
+						data-toggle="modal" data-target="#deleteForm">회원탈퇴</button>
 			</div>
 
 		</form>
@@ -116,6 +120,161 @@
 	</div>
 	
 	<br><br>
+	
+	<!-- 비밀번호변경과 회원탈퇴는 모달창을 이용해서 구현해볼 예정!! -->
+	
+	<!-- 회원탈퇴용 모달창 -->
+	<!-- The Modal -->
+	<div class="modal" id="deleteForm">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	
+	      <!-- Modal Header -->
+	      <div class="modal-header">
+	        <h4 class="modal-title">회원 탈퇴</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	
+	      <!-- Modal body -->
+	      <div class="modal-body" align="center">
+	
+			<b>
+				탈퇴 후 복구가 불가능합니다. <br>
+				정말로 탈퇴하시겠습니까? <br><br>
+			</b>
+	
+			<!-- 
+				* 회원 탈퇴 기능 구현
+				- 현재 이 회원의 비밀번호를 입력 후 탈퇴하기 버튼 클릭 시
+				  http://localhost:8006/myweb/member/delete 로 POST 방식으로 요청
+			-->
+	        <form action="/myweb/member/delete" method="post">
+	        
+	        	<!-- 
+	        		* 회원 탈퇴 요청 시 필요한 데이터
+	        		- 현재 이 회원의 비밀번호
+	        	-->
+	        	
+	        	<table>
+	        		<tr>
+	        			<th>비밀번호</th>
+	        			<td>
+	        				<input type="password" name="userPwd" required>
+	        			</td>
+	        		</tr>
+	        	</table>
+	        
+	        	<br><br>
+	        	
+	        	<div align="center">
+	        		<button type="submit" class="btn btn-danger btn-sm">
+	        			탈퇴하기
+	        		</button>
+	        	</div>
+	        
+	        </form>
+	
+	      </div>
+	
+	    </div>
+	  </div>
+	</div>
+	
+	<!--  비번변경용 모달창 -->
+	<!-- The Modal -->
+	<div class="modal" id="updatePwdForm">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	
+	      <!-- Modal Header -->
+	      <div class="modal-header">
+	        <h4 class="modal-title">비밀번호 변경</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	
+	      <!-- Modal body -->
+	      <div class="modal-body">
+	        
+	        <!-- 
+	        	* 비밀번호 변경 기능 구현
+	        	
+	        	- 사용자가 현재 비밀번호, 변경할 비밀반허, 변경할 비밀번호 재입력을 입력하고 나서
+	        	  비밀번호 변경 버튼을 클릭 시
+	        	  
+	        	 http://localhost:8006/myweb/member/updatePwd
+	        -->
+	        <form action="/myweb/member/updatePwd" method="post">
+	        	
+	        	<!-- 
+	        		* 비밀번호 변경 시 입력받아야 되는 것들
+	        		- 현재 비밀번호, 변경할 비밀번호, 변경할 비밀번호 재입력
+	        		- 누구의 비번을 변경할건지 해당 회원의 아이디도 필요하긴 함!!
+	        		  (아이디를 input type="hidden" 을 통해 눈에 보이지 않게 같이 몰래 넘기는 것)
+	        	-->
+	        
+	        	<input type="hidden" name="userId" value="${ sessionScope.loginUser.userId }">
+	        
+	        	<table>
+	        		<tr>
+		        		<th>현재 비밀번호</th>
+		        		<td>
+		        			<input type="password" name="userPwd" required>
+		        		</td>
+	        		</tr>
+	        		<tr>
+		        		<th>변경할 비밀번호</th>
+		        		<td>
+		        			<input type="password" name="updatePwd" required>
+		        		</td>
+	        		</tr>
+	        		<tr>
+		        		<th>변경할 비밀번호 재입력</th>
+		        		<td>
+		        			<input type="password" name="checkPwd" required>
+		        		</td>
+	        		</tr>
+	        	</table>
+	        	
+	        	<br><br>
+	        	
+	        	<div align="center">
+	        		<button type="submit" class="btn btn-secondary btn-sm"
+	        				onclick="return validatePwd();">
+	        			비밀번호 변경		
+	        		</button>
+	        	</div>
+	        	
+	        </form>
+	        
+	        <script>
+	        	// 변경할 비밀번호 유효성 검사용 함수
+	        	// > 변경할 비밀번호와 변경할 비밀번호 재입력이 일치할 경우 true, 아닐 경우 false 반환
+	        	function validatePwd() {
+	        		
+	        		// 우선 변경할 비밀번호와 변경할 비밀번호 재입력값을 변수에 담아오기
+	        		let updatePwd = $("input[name=updatePwd]").val();
+	        		let checkPwd = $("input[name=checkPwd]").val();
+	        		
+	        		// console.log(updatePWd,checkPwd);
+	        		
+	        		// 두 값이 일치하면 기본이벤트를 살리고, 두 값이 일치하지 않으면 기본이벤트를 제거할 것
+	        		if(updatePwd != checkPwd) {
+	        			
+	        			alertfy.alert("비밀번호가 일치하지 않습니다.");
+	        			
+	        			return false;
+	        		}
+	        		
+	        		return true;
+	        	}
+	        </script>
+	        
+	      </div>
+	      
+	    </div>
+	  </div>
+	</div>
+	
 	
 </body>
 </html>

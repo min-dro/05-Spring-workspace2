@@ -6,13 +6,15 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
+	/*
 	.outer {
 		width : 1000px;
 		border : 1px dotted lightgray;
 		margin : auto;
 		margin-top : 50px;
 	}
-
+	*/
+	
 	#enroll-form table {
 		margin : auto;
 	}

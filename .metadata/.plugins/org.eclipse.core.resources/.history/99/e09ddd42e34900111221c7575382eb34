@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="noticeMapper">
+	
+	<!-- 
+		NOTICE 테이블로부터 조회된 내용을
+		자바의 Notice VO 객체로 옮겨 담는 역할의 ResultMap
+	-->
+	<resultMap id="noticeResultSet" type="notice">
+		<id column="NOTICE_ID" property="noticeNo" />
+		<result column="USER_ID" property="noticeWriter" />
+		<result column="COUNT" property="count" />
+		<result column="CREATE_DATE" property="createDate" />
+	</resultMap>
+	
+	<!-- 공지사항 목록 조회용 쿼리문 -->
+	<select id="selectNoticelist">
+	SELECT NOTICE_NO
+	     , NOTICE_TITLE
+	     , USER_ID
+	     , COUNT
+	     , CREATE_DATE
+	  FROM NOTICE
+	  JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
+	 WHERE STATUS = 'Y'
+	 ORDER BY NOTICE_NO DESC
+	</select>
+
+</mapper>

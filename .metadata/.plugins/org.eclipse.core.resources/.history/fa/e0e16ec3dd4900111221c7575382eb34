@@ -1,0 +1,97 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style>
+	.list-area {
+		width : 90%;
+		text-align : center;
+	}
+</style>
+</head>
+<body>
+
+	<jsp:include page="../common/menubar.jsp" />
+	
+	<div class="outer">
+		
+		<br>
+		<h2 align="center">공지사항</h2>
+		<br>
+		
+		<br>
+		
+		<table class="list-area table ">
+			<thead>
+				<tr>
+					<th>글번호</th>
+					<th>글제목</th>
+					<th>작성자</th>
+					<th>조회수</th>
+					<th>작성일</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- DB 로 부터 조회해왔다라는 가정 하에 -->
+				<!-- case1. 조회된 공지사항이 없다면 -->
+				<!-- 
+				<tr>
+					<th colspan="5">
+						조회된 공지사항이 없습니다.
+					</th>
+				</tr>
+				-->
+				
+				<!-- case2. 조회된 공지사항들이 있다면 -->
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>공지사항의 제목입니다. 제목이 어쩌고..</td>
+					<td>admin</td>
+					<td>24</td>
+					<td>2025-09-20</td>
+				</tr>
+			</tbody>
+		</table>
+	
+	</div>
+
+</body>
+</html>

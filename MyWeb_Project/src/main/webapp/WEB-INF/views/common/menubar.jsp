@@ -43,6 +43,18 @@
 		text-decoration : none;
 		color : white;
 	}
+
+	/*
+		* 모든 페이지마다 .outer 에 대한 스타일은 공통스타일이기 때문에
+		  매 페이지마다 일일이 적는게 아니라
+		  매 페이지마다 include 되야하는 menubar.jsp 에 한번만 정의해두고 계속 가져다 쓰는 구조로 수정
+	*/
+	.outer {
+		width : 1000px;
+		border : 1px dotted lightgray;
+		margin : auto;
+		margin-top : 50px;
+	}
 </style>
 
 <!-- alertify 라이브러리 연동 구문 -->
@@ -173,8 +185,8 @@
 	<!-- 메뉴바 (navigator) 영역 -->
 	<div class="nav-area" align="center">
 
-		<div class="menu"><a href="">HOME</a></div>
-		<div class="menu"><a href="">NOTCE</a></div>
+		<div class="menu"><a href="/myweb">HOME</a></div>
+		<div class="menu"><a href="/myweb/notice/list">NOTCE</a></div>
 		<div class="menu"><a href="">BOARD</a></div>
 		<div class="menu"><a href="">PHOTO</a></div>
 

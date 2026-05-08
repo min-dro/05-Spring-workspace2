@@ -1,0 +1,26 @@
+package com.kh.myweb.notice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.kh.myweb.notice.model.service.NoticeService;
+
+@Controller
+@RequestMapping("notice")
+public class NoticeController {
+	
+	@Autowired
+	private NoticeService noticeService;
+	
+	@GetMapping("list")
+	public String selectNoticeList() {
+		
+		// 응답페이지를 먼저 만들어서 포워딩
+		return "";
+		// > ~~~
+	}
+	
+	
+}

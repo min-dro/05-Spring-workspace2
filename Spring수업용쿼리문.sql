@@ -36,3 +36,33 @@ UPDATE MEMBER
  WHERE USER_ID = ?
    AND STATUS = 'Y'
 --> 탈퇴되지 않은 회원의 경우만 정확히 수정하기 위해
+
+-- 4. 비밀번호 변경용 쿼리문
+-- 현재 비밀번호, 변경할 비밀번호 를 입력받아서 넘겼었음!!
+UPDATE MEMBER
+   SET USER_PWD = ?
+     , MODIFY_DATE = SYSDATE
+ WHERE USER_ID = ?
+   AND STATUS = 'Y'
+
+-- 5. 회원 탈퇴용 쿼리문
+-- DELETE 문이 아닌 UPDATE 문으로 처리할 예정!!
+-- 특히 외래키 이슈 때문!!
+UPDATE MEMBER
+   SET STATUS = 'N'
+     , MODIFY_DATE = SYSDATE
+ WHERE USER_ID = ?
+   AND STATUS = 'Y'
+   
+-------------------------------------------------------------------------
+
+-- 6. 공지사항 목록 조회용 쿼리문
+SELECT NOTICE_NO
+     , NOTICE_TITLE
+     , USER_ID
+     , COUNT
+     , CREATE_DATE
+  FROM NOTICE
+  JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
+ WHERE N.STATUS = 'Y'
+ ORDER BY NOTICE_NO DESC
