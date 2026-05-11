@@ -1,0 +1,14 @@
+package com.kh.myweb.common.template;
+
+import com.kh.myweb.common.model.vo.PageInfo;
+
+public class Pagination {
+
+	// 7개의 변수를 잘 셋팅해서 하나의 PageInfo 객체로 만들어주는 메소드
+	// > 4개의 기본 변수를 매개변수로 받아서 나머지 3개의 변수를 계간한 후
+	//   최종적으로 7개의 변수를 PageInfo 로 가공해서 리턴
+	public static PageInfo getPageInfo() {
+		
+	}
+	
+}

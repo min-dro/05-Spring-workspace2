@@ -1,0 +1,37 @@
+package com.kh.myweb.board.controller;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kh.myweb.board.model.service.BoardService;
+import com.kh.myweb.board.model.vo.Board;
+
+@Controller
+@RequestMapping("board")
+public class BoardController {
+	
+	@Autowired
+	private BoardService boardService;
+
+	@GetMapping("list")
+	public ModelAndView selectBoardList(@RequestParam(value="cpage") int currentPage, ModelAndView mv) {
+		
+		// 우선 응답페이지를 만들어서 띄워보기
+		mv.setViewName("board/boardListView");
+		// > /WEB-INF/views/board/boardListView.jsp
+		
+		ArrayList<Board> board = boardService.select
+		
+		return mv;
+	}
+
+	
+	
+	
+}

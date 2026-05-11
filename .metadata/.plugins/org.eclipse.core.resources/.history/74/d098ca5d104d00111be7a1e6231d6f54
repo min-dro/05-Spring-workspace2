@@ -1,0 +1,129 @@
+package com.kh.myweb.board.controller;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kh.myweb.board.model.service.BoardService;
+import com.kh.myweb.board.model.vo.Board;
+import com.kh.myweb.common.model.vo.PageInfo;
+import com.kh.myweb.common.template.Pagination;
+
+@Controller
+@RequestMapping("board")
+public class BoardController {
+	
+	@Autowired
+	private BoardService boardService;
+
+	@GetMapping("list")
+	public ModelAndView selectBoardList(@RequestParam(value="cpage", defaultValue="1") int currentPage, ModelAndView mv) {
+		
+		// System.out.println("현재 요청한 페이지 : " + currentPage);
+		
+		// 일반게시판 목록 조회 기능 구현 (+ 페이징 처리)
+		
+		// * 페이징 처리 (Pagination)
+		// > 리스트 조회 시 한 페이지 당 조회할 건수가 너무 많을 때
+		//   한 페이지 당 n 개씩 끊어서 보여질 수 있도록 처리해주는 효과
+		
+		// --- 페이징 처리 ---
+		// 필요한 변수는 총 7개!!
+		// > 기본적으로 구할 수 있는 4개의 변수 + 그 4개의 변수를 통해 계산해서 도출해야 하는 3개의 변수
+		
+		// > 기본적으로 구할 수 있는 4개의 변수
+		int listCount; // 현재 총 게시글의 갯수 (단, 삭제되지 않은 일반게시글의 갯수)
+		// int currentPage; // 현재 사용자가 보고자 하는 페이지 (즉, 사용자가 요청한 페이지)
+		// > 이미 매개변수로 요청 시 전달값으로 받아내고 있음!!
+		int pageLimit; // 페이지 하단에 보여질 페이징바의 페이지 최대 갯수
+		int boardLimit; // 한 페이지에 보여질 게시글의 최대 갯수 (즉, 한 페이지당 몇개씩 볼거냐)
+		
+		// 위의 4개의 변수들로 계산해서 구해야 하는 3개의 변수
+		int maxPage; // 가장 마지막 페이지가 몇 번 페이지인지 (즉, 총 페이지 수)
+		int startPage; // 페이지 하단에 보여질 페이징바의 시작수
+		int endPage; // 페이지 하단에 보여질 페이징바의 끝수
+		
+		// * listCount : 총 게시글의 갯수
+		// > BOARD 테이블의 유효한 데이터의 갯수를 COUNT 함수로 세오기!!
+		listCount = boardService.selectListCount();
+		
+		// * currentPage : 현재 사용자가 요청한 페이지
+		// > 이미 위에서 매개변수로 요청 시 전달값으로 cpage 라는 키값으로 넘겨받았음!!
+		
+		// * pageLimit : 페이지 하단에 보여질 페이징바의 페이지 최대 갯수
+		// > 한 페이지 당 페이지 목록들을 몇 개 단위씩 보여질건지 임의의 값으로 지정하기
+		//   (알고리즘 수식 계산의 편의를 위해 10으로 셋팅할 것)
+		pageLimit = 10;
+		
+		// * boardLimit : 한페이지에 보여질 게시글의 최대 갯수
+		// > 한 페이지 당 게시글이 몇 개 씩 보여질건지 임의의 값으로 지정하기
+		//   (알고리즘 수식 계산의 편의를 위해 10으로 셋팅할 것)
+		boardLimit = 10;
+		
+		// 매번 listCount, currentPage, pageLimit, boardLimit 를 통해
+		// maxPage, startPage, endPage 를 일일이 계산하는 코드를 작성하기 귀찮음!!
+		// > 마찬가지로 공통 코드 작업을 해둘 것!!
+		
+		// Pagination 클래스를 생성하고 그 안에 getPageInfo 라는 메소드를 만들것!!
+		PageInfo pi = Pagination.getPageInfo(listCount, currentPage, 
+											 pageLimit, boardLimit);
+		
+		// System.out.println(listCount);
+		// System.out.println(currentPage);
+		// System.out.println(pageLimit);
+		// System.out.println(boardLimit);
+		// System.out.println(maxPage);
+		// System.out.println(startPage);
+		// System.out.println(endPage);
+		
+		// * 페이징 처리의 원리
+		// > 게시글들을 최신순으로 정렬 후 페이지 구간별로 끊어서 조회해오는 것!!
+		//   이떄 위에서 구한 7 개의 변수들이 쿼리문에 영향을 미치기 때문에,
+		//	 7 개의 변수를 DAO 전달값으로 넘겨줄 것임!!
+		
+		// > 위의 7 개의 변수를 각 필드로 갖고있는 VO 클래스를 하나 만들 것!!
+		// > PageInfo 라는 VO 클래스를 만들어서 각 변수를 필드로 가공해서 한번에 매개변수로 넘길 예정
+		//   (한번 만들어 두면 공지사항, 일반게시판, 사진게시판 등 목록 조회 시
+		//    페이징 처리가 필요할 때 마다 계속 재활용해서 쓸 수 있게됨!!)
+		
+		/*
+		PageInfo pi = new PageInfo(listCount, currentPage, pageLimit, boardLimit,
+								   maxPage, startPage, endPage);
+		*/
+		
+		// pi 를 전달하면서 Service 로 요청 후 결과 받기
+		ArrayList<Board> list = boardService.selectBoardList(pi);
+		
+		/*
+		for(Board b : list) {
+			
+			System.out.println(b);
+		}
+		*/
+		// > 107 ~ 98 / 97 ~ 88 / 87 ~ 78 / ...
+		//	 (최신 게시글 기준으로 위에서부터 10개씩)
+		
+		// 현재 사용자가 요청한 페이지 (currentPage) 에 보여질 게시글 리스트를 
+		// 응답데이터로 넘기기
+		mv.addObject("list", list);
+		
+		// 또한, 요청 페이지 하단에 보여질 페이징바를 만드려면 위의 7개의 변수를 담은
+		// pi 도 응답데이터로 넘겨줘야함!!
+		mv.addObject("pi", pi);
+		
+		// 우선 응답페이지를 만들어서 띄워보기
+		mv.setViewName("board/boardListView");
+		// > /WEB-INF/views/board/boardListView.jsp
+		
+		return mv;
+	}
+
+	
+	
+	
+}

@@ -111,3 +111,39 @@ UPDATE NOTICE
    SET STATUS = 'N'
  WHERE NOTICE_NO = ?
    AND STATUS = 'Y'
+   
+--------------------------------------------------------------------------------
+
+-- 12. 일반게시글의 총 갯수를 구하는 쿼리문
+-- 단, 일반게시글로 삭제되지 않은 것들만 세와야함!!
+SELECT COUNT(*)
+  FROM BOARD
+ WHERE BOARD_TYPE = 1
+   AND STATUS = 'Y'
+   
+-- 13. 페이징 처리가 적용된 게시글의 목록을 조회하는 쿼리문
+-- 페이징 처리의 원리 : 우선 게시글들을 최신순으로 정렬 후 위에서부터 boardLimit 만큼 게시글을 조회해옴
+-- 글번호, 카테고리명, 글제목, 작성자의 아이디, 조회수, 작성일
+SELECT *
+FROM
+    (
+    SELECT ROWNUM RNUM, A.*
+      FROM (
+        SELECT BOARD_NO
+             , CATEGORY_NAME AS CATEGORY
+             , BOARD_TITLE
+             , USER_ID
+             , COUNT
+             , CREATE_DATE
+          FROM BOARD B
+          JOIN CATEGORY C USING (CATEGORY_NO)
+          JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+          WHERE BOARD_TYPE = 1 
+            AND B.STATUS = 'Y'
+          ORDER BY BOARD_NO DESC
+        ) A
+    )
+ WHERE RNUM BETWEEN ? AND ?
+--> 우선 최신순으로 정렬이 먼저 일어나도록 인라인뷰 사용!!
+--> ROWNUM 컬럼 특성 상 1부터 시작하는 값만 조회 가능하기 때문에 해결하기 위해서는 ROWNUM 컬럼에 별칭 부여!!
+--  (단, WHERE 절에서는 SELECT 절에서 제시한 별칭 사용 불가!! 그래서 인라인뷰를 한겹 더 쓴것!!)

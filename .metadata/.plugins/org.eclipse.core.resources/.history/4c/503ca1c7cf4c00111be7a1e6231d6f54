@@ -1,0 +1,29 @@
+package com.kh.myweb.board.model.vo;
+
+import java.sql.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+public class Board {
+	
+	// 필드부 (컬럼 정보와 유사하게)
+	private int boardNo;			//	BOARD_NO	NUMBER
+	private int boardType;			//	BOARD_TYPE	NUMBER
+	private int categoryNo;			//	CATEGORY_NO	NUMBER
+	private String boardTitle;		//	BOARD_TITLE	VARCHAR2(100 BYTE)
+	private String boardContent;	//	BOARD_CONTENT	VARCHAR2(4000 BYTE)
+	private String boardWriter;		//	BOARD_WRITER	NUMBER
+	private int count;				//	COUNT	NUMBER
+	private Date createDate;		//	CREATE_DATE	DATE
+	private String status;			//	STATUS	VARCHAR2(1 BYTE)
+	
+}

@@ -1,0 +1,9 @@
+package com.kh.myweb.common.model.vo;
+
+public class PageInfo {
+
+	// 필드부 (7개의 변수를 필드로 구성)
+	private int listCount;
+	private int currentPage;
+	
+}

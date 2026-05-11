@@ -1,0 +1,6 @@
+package com.kh.myweb.board.controller;
+
+@Controller
+public class BoardController {
+
+}

@@ -1,0 +1,23 @@
+package com.kh.myweb.board.model.dao;
+
+import java.util.ArrayList;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.kh.myweb.board.model.vo.Board;
+
+@Repository
+public class BoardDao {
+
+	public int selectListCount(SqlSessionTemplate sqlSession) {
+		
+		return sqlSession.selectOne("boardMapper.selectListCount");
+	}
+
+	public ArrayList<Board> selectBoardList(SqlSessionTemplate sqlSession, int currentPage) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

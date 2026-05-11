@@ -1,0 +1,44 @@
+package com.kh.myweb.board.model.dao;
+
+import java.util.ArrayList;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.kh.myweb.board.model.vo.Board;
+import com.kh.myweb.common.model.vo.PageInfo;
+
+@Repository
+public class BoardDao {
+
+	public int selectListCount(SqlSessionTemplate sqlSession) {
+		
+		return sqlSession.selectOne("boardMapper.selectListCount");
+	}
+
+	public ArrayList<Board> selectBoardList(SqlSessionTemplate sqlSession, PageInfo pi) {
+		
+		/*
+		 * boardLimit 가 10 이라는 가정 하에
+		 * 
+		 * currentPage = 1 : 시작수 = 1, 끝수 = 10
+		 * currentPage = 2 : 시작수 = 11, 끝수 = 20
+		 * currentPage = 3 : 시작수 = 21, 끝수 = 30
+		 * currentPage = 4 : 시작수 = 31, 끝수 = 40
+		 * ...
+		 * => 즉, 시작수 = (currentPage - 1) * boardLimit + 1;
+		 * 
+		 * 1 = (1 - 1) * 10 + 1
+		 * 11 = (2 - 1) * 10 + 1;
+		 * ...
+		 * 
+		 * 끝수 = 시작수 boardLimit - 1;
+		 */
+		
+		int PageInfo = (pi.getCurrentPage() - 1) * pi.getBoardLimit() + 1;
+		int endRow = startRow + pt.getBoardLimit() - 1;
+		
+		return (ArrayList)sqlSession.selectList("boardMapper.selectBoardList", pi);
+	}
+
+}
