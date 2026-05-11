@@ -5721,3 +5721,72 @@ org.eclipse.wst.xml.core.internal.document.StructuredDocumentRegionManagementExc
 
 !ENTRY org.eclipse.m2e.logback.appender 2 0 2026-05-11 17:13:51.028
 !MESSAGE Plugin is modifying testCompileSourceRoots through add(), which will not work in Maven 4.0.0. Use MavenProject.addTestCompileSourceRoot()/removeTestCompileSourceRoot() methods instead. If using a plugin, please upgrade to the latest version or report the issue to the plugin maintainer. To disable these warnings, set -Dmaven.project.sourceRoots.warningsDisabled=true on the command line, in the .mvn/maven.config file, or in project POM properties.
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2026-05-11 17:16:05.168
+!MESSAGE DelegatingStreamConnectionProvider - Stopping Boot LS
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.358
+!MESSAGE [Info] Document is null for editor: mybatis-config.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.359
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/resources/mybatis-config.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.397
+!MESSAGE [Info] Document is null for editor: XssDefencePolicy.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.397
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/java/com/kh/myweb/common/template/XssDefencePolicy.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.447
+!MESSAGE [Info] Document is null for editor: BoardDao.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.447
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/java/com/kh/myweb/board/model/dao/BoardDao.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.530
+!MESSAGE [Info] Document is null for editor: BoardController.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.530
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/java/com/kh/myweb/board/controller/BoardController.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.601
+!MESSAGE [Info] Document is null for editor: board-mapper.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.602
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/resources/mappers/board-mapper.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.641
+!MESSAGE [Info] Document is null for editor: notice-mapper.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.642
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/resources/mappers/notice-mapper.xml
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.671
+!MESSAGE [Info] Document is null for editor: index.jsp
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.672
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/webapp/WEB-INF/views/index.jsp
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.692
+!MESSAGE [Info] Document is null for editor: PageInfo.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.692
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/java/com/kh/myweb/common/model/vo/PageInfo.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.722
+!MESSAGE [Info] Document is null for editor: Pagination.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.722
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/java/com/kh/myweb/common/template/Pagination.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.788
+!MESSAGE [Info] Document is null for editor: menubar.jsp
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.788
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/webapp/WEB-INF/views/common/menubar.jsp
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.840
+!MESSAGE [Info] Document is null for editor: boardListView.jsp
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2026-05-11 17:16:05.840
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///C:/05-Spring-workspace2/MyWeb_Project/src/main/webapp/WEB-INF/views/board/boardListView.jsp

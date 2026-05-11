@@ -1,6 +1,0 @@
-package com.kh.myweb.member.model.dao;
-
-@Component
-public class MemberDao {
-
-}
