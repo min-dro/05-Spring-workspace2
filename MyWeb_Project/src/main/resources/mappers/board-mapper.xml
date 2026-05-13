@@ -42,7 +42,7 @@
 		   AND BOARD_TYPE = 1
 		 ORDER BY BOARD_NO DESC
 		<!-- RowBounds 객체 사용 전 쿼리문 - 인라인뷰가 복잡 -->
-	`	<!--
+		<!--
 		SELECT *
 		  FROM 
 		  	(
@@ -64,6 +64,6 @@
 		        ) A
 		    )
 		 WHERE RNUM BETWEEN #{startRow} AND #{endRow}
-		-->`
+		-->
 	</select>
 </mapper>

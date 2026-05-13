@@ -1,6 +1,7 @@
 package com.kh.myweb.board.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -123,6 +124,39 @@ public class BoardController {
 		return mv;
 	}
 
+	@GetMapping("search")
+	public void searchBoardList(String condition, String keyword, 
+								@RequestParam(value="cpage", defaultValue="1") int currentPage) {
+		
+		// System.out.println(condition);
+		// > 검색 조건 : "writer" / "title" / "content"
+		
+		// System.out.println(keyword);
+		// > 사용자가 입력한 검색어 : "30" / "10" / "30"
+		
+		// 위의 두 값을 가지고 검색을 하되, 페이징 처리까지 해줘야 함
+		// > 기본적으로 검색 시 검색 결과를 중 1번 페이지가 보여져야함!!
+		//   또한 검색 결과들 중 n번 페이지를 사용자가 요청할 수도 있음
+		//   (currentPage 값도 얻어내야함, 또한 7개의 변수도 마저 셋팅해야함)
+		
+		// 우선 총 검색된 게시글의 갯수를 먼저 구할 것!!
+		// > condition, keyword 두개 다 넘기면서 쿼리문을 실행하고 와야 함!!
+		// 1. condition, keyword 라는 두개의 필드를 가진 VO 를 만들고 객체로 만들어서 넘기기
+		// 2. condition, keyword 라는 값을 HashMap 에 담아서 넘기기
+		
+		// > HashMap 이용해보기!!
+		HashMap<String, String> map = new HashMap<>();
+		map.put("condition", condition);
+		map.put("keyword", keyword);
+		
+		int searchCount = boardService.selectSearchCount(map); // 변수
+		
+	}
+	
 	
 	
 }
+
+
+
+

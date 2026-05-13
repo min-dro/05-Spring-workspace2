@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+
+	<!--  
+		BOARD 테이블로부터 조회된 result set 을
+		자바의 Board VO 객체로 가공해주는 resultMap
+	-->
+	<resultMap id="boardResultSet" type="board">
+		<id column="BOARD_NO" property="boardNo" />
+		<result column="CATEGORY" property="category" />
+		<result column="BOARD_TITLE" property="boardTitle" />
+		<result column="USER_ID" property="boardWriter" />
+		<result column="COUNT" property="count" />
+		<result column="CREATE_DATE" property="createDate" />
+	</resultMap>
+
+	<!-- 게시글 총 겟수를 구하는 쿼리문 -->
+	<select id="selectListCount" resultType="_int">
+		SELECT COUNT(*)
+		  FROM BOARD
+		 WHERE BOARD_TYPE = 1
+		   AND STATUS = 'Y'
+	</select>
+
+	<!-- 페이징처리가 적용된 게시글의 목록을 조회하는 쿼리문 -->
+	<select id="selectBoardList" parameterType="hashmap" 
+			resultMap="boardResultSet">
+		<!-- RowBounds 객체 사용 후 쿼리문 - 전체를 조회하되 정렬만 잘해주기!! -->
+		SELECT BOARD_NO
+			 , CATEGORY_NAME AS CATEGORY
+			 , BOARD_TITLE
+			 , USER_ID
+			 , COUNT
+			 , CREATE_DATE
+		  FROM BOARD B
+		  JOIN CATEGORY USING (CATEGORY_NO)
+		  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		 WHERE B.STATUS = 'Y'
+		   AND BOARD_TYPE = 1
+		 ORDER BY BOARD_NO DESC
+		<!-- RowBounds 객체 사용 전 쿼리문 - 인라인뷰가 복잡 -->
+	`	<!--
+		SELECT *
+		  FROM 
+		  	(
+		    SELECT ROWNUM RNUM, A.*
+		      FROM 
+		      	(
+		        SELECT BOARD_NO
+		             , CATEGORY_NAME AS CATEGORY
+		             , BOARD_TITLE
+		             , USER_ID
+		             , COUNT
+		             , CREATE_DATE
+		          FROM BOARD B
+		          JOIN CATEGORY C USING (CATEGORY_NO)
+		          JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		          WHERE BOARD_TYPE = 1 
+		            AND B.STATUS = 'Y'
+		          ORDER BY BOARD_NO DESC
+		        ) A
+		    )
+		 WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+		-->
+	</select>
+</mapper>

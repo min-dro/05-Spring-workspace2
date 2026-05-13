@@ -31,7 +31,28 @@
 		<br><br>
 		
 		<!-- 검색창을 만들 부분 -->
-		<div id="search-area"></div>
+		<div id="search-area" align="center"></div>
+		
+			<!--  
+				* 게시글 검색 기능 구현
+				- 검색 조건과 검색어를 입력 후 검색 버튼을 클릭하는 순간
+				  http://localhost:8006/myweb/board/search 로 GET 방식으로 요청
+			-->
+		
+			<form action="/myweb/board/search" method="get">
+				
+				<!-- 검색 시 검색 조건과 검색어를 입력받고 검색버튼을 클릭함!! -->
+				<select name="condition">
+					<option value="writer">작성자</option>
+					<option value="title">제목</option>
+					<option value="content">내용</option>
+				</select>
+				
+				<input type="search" name="keyword">
+				
+				<button type="submit" class="btn btn-secondary btn-sm">검색</button>
+			
+			</form>
 		
 		<br><br>
 		

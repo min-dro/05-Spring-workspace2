@@ -143,7 +143,29 @@ FROM
           ORDER BY BOARD_NO DESC
         ) A
     )
- WHERE RNUM BETWEEN ? AND ?
+WHERE RNUM BETWEEN ? AND ?
 --> 우선 최신순으로 정렬이 먼저 일어나도록 인라인뷰 사용!!
 --> ROWNUM 컬럼 특성 상 1부터 시작하는 값만 조회 가능하기 때문에 해결하기 위해서는 ROWNUM 컬럼에 별칭 부여!!
 --  (단, WHERE 절에서는 SELECT 절에서 제시한 별칭 사용 불가!! 그래서 인라인뷰를 한겹 더 쓴것!!)
+
+--> 14. 검색된 게시글의 갯수를 구하는 쿼리문
+SELECT COUNT(*)
+    FROM BOARD B
+    JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_TYPE = 1
+    AND B.STATUS = 'Y' -- 전체 107 건
+--    AND USER_ID LIKE '%' || ? || '%' -- 작성자로 검색 (writer=ad) - 총 54건
+--    AND BOARD_TITLE LIKE '%' || ? || '%'-- 제목으로 검색 (title=10) - 총 9건
+    AND BOARD_CONTENT LIKE '%' || ? || '%' -- 내용으로 검색 (content=입니다) - 총 107건
+--> 하단 AND 절은 사용자가 어떤 condition 값을 넘겼냐에 따라 바뀌고,
+--  ? (위치홀더, 구멍) 자리에는 사용자가 입력한 keyword 가 들어가야 한다!
+
+
+
+
+
+
+
+
+
+

@@ -1,6 +1,7 @@
 package com.kh.myweb.board.model.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,22 @@ public class BoardService {
 		return boardDao.selectBoardList(sqlSession, pi);
 	}
 
+	public int selectSearchCount(HashMap<String, String> map) {
+		
+		switch(map.get("condition")) {
+		
+		
+		}
+		boardDao.
+	}
+	
+	}
+
 	
 	
-}
+	
+	
+	
+
+	
+	
