@@ -66,4 +66,99 @@
 		 WHERE RNUM BETWEEN #{startRow} AND #{endRow}
 		-->
 	</select>
+	
+	<!--  
+		* MyBatis 의 "동적 SQL (동적 쿼리)" 기술을 적용하여 검색 기능 구현
+		
+		- 동적 SQL (동적 쿼리)
+		: 상황에 따라 분기 처리 등을 통해 SQL 문을 동적으로 만들어내는 기술
+		
+		예)
+		조건에 따라 다른 쿼리문을 만들겠다.
+		상황에 따라 반복적으로 쿼리문에 필요한 요소들을 붙여서 완성시키겠다.
+		
+		- 문법은 JSTL 의 태그들과 거의 비슷한 형태이다!!
+	-->
+	
+	<!-- 검색 결과의 갯수를 세오는 쿼리문 -->
+	<select id="selectSearchCount" parameterType="hashmap"
+								   resultType="_int">
+		SELECT COUNT(*)
+		    FROM BOARD B
+		    JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		 WHERE BOARD_TYPE = 1
+		    AND B.STATUS = 'Y'
+			AND
+			<if test="condition == 'writer'">
+		    	 USER_ID
+		    </if>
+		    <if test="condition == 'title'">
+		    	 BOARD_TITLE
+		    </if>
+		    <if test="condition == 'content'">
+		    	 BOARD_CONTENT
+		    </if>
+		    				   LIKE '%' || #{keyword} || '%'
+	</select>
+	
+	<!-- 실제 검색결과를 조회해주는 쿼리문 (RowBounds 쓸 것 - 인라인뷰 X) -->
+	<select id="searchBoardList" parameterType="hashmap"
+								 resultMap="boardResultSet">
+		SELECT BOARD_NO
+		     , CATEGORY_NAME AS CATEGORY
+		     , BOARD_TITLE
+		     , USER_ID
+		     , COUNT
+		     , CREATE_DATE
+		  FROM BOARD B
+		  JOIN CATEGORY USING (CATEGORY_NO)
+		  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		 WHERE BOARD_TYPE = 1
+		   AND B.STATUS = 'Y'
+		   AND
+		   <choose>
+		   		<when test="condition == 'writer'">
+		   			USER_ID
+		   		</when>
+		   		<when test="condition == 'title'">
+		   			BOARD_TITLE 
+		   		</when>
+		   		<otherwise>
+		   			BOARD_CONTENT
+		   		</otherwise>
+		   </choose>
+								  LIKE '%' || #{keyword} || '%' 
+		 ORDER BY BOARD_NO DESC
+	</select>
+	
+	<!-- 게시글 등록용 쿼리문 (첨부파일이 있든 없든 무조건 실행) -->
+	<insert id="insertBoard" parameterType="board">
+		INSERT INTO BOARD (BOARD_NO
+		                 , BOARD_TYPE
+		                 , CATEGORY_NO
+		                 , BOARD_TITLE
+		                 , BOARD_CONTENT
+		                 , BOARD_WRITER) 
+                   VALUES (SEQ_BNO.NEXTVAL
+		                 , 1
+		                 , #{category}
+		                 , #{boardTitle}
+		                 , #{boardContent}
+		                 , #{boardWriter})
+	</insert>
+	
+	<!-- 첨부파일 등록용 쿼리문 (첨부파일이 있을 경우 선택적으로 실행) -->
+	<insert id="insertAttachment" parameterType="attachment">
+		INSERT INTO ATTACHMENT(FILE_NO
+                      , REF_BNO
+                      , ORIGIN_NAME
+                      , CHANGE_NAME
+                      , FILE_PATH)
+                 VALUES(SEQ_FNO.NEXTVAL
+                      , SEQ_BNO.CURRVAL
+                      , #{originName}
+                      , #{changeName}
+                      , #{filePath})
+	</insert>
+	
 </mapper>

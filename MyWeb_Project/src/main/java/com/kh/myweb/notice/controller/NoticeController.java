@@ -93,7 +93,7 @@ public class NoticeController {
 		n.setNoticeTitle(replaceTitle);
 		n.setNoticeContent(replaceContent);
 		
-		System.out.println(n);
+		// System.out.println(n);
 		
 		// Service 로 전달값을 넘기면서 요청 후 결과 받기
 		int result = noticeService.insertNotice(n);

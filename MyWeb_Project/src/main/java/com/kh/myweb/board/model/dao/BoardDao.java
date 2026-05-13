@@ -1,11 +1,13 @@
 package com.kh.myweb.board.model.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.ibatis.session.RowBounds;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.common.model.vo.PageInfo;
 
@@ -115,5 +117,34 @@ public class BoardDao {
 		 * => 사실 RowBounds 객체를 쓰는 방법은 권장사항이 아님!! (성능 이슈 때문)
 		 */
 	}
+	
+	public int selectSearchCount(SqlSessionTemplate sqlSession,
+								 HashMap<String, String> map) {
+		
+		return sqlSession.selectOne("boardMapper.selectSearchCount", map);
+	}
 
+	public ArrayList<Board> searchBoardList(SqlSessionTemplate sqlSession,
+											HashMap<String, String> map, 
+											PageInfo pi) {
+		
+		int limit = pi.getBoardLimit();
+		int offset = (pi.getCurrentPage() - 1) * limit;
+		
+		RowBounds rowBounds = new RowBounds(offset, limit);
+		
+		return (ArrayList)sqlSession.selectList("boardMapper.searchBoardList", map, rowBounds);
+	}
+
+	public int insertBoard(SqlSessionTemplate sqlSession, Board b) {
+
+		return sqlSession.insert("boardMapper.insertBoard", b);
+	}
+
+	public int insertAttachment(SqlSessionTemplate sqlSession, Attachment at) {
+		
+		return sqlSession.insert("boardMapper.insertAttachment", at);
+	}
+
+	
 }

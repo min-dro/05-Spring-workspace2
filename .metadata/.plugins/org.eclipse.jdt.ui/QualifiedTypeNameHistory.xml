@@ -3,7 +3,10 @@
     <fullyQualifiedTypeName name="org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration"/>
     <fullyQualifiedTypeName name="org.springframework.security.config.annotation.web.builders.HttpSecurity"/>
     <fullyQualifiedTypeName name="com.kh.myweb.common.template.XssDefencePolicy"/>
-    <fullyQualifiedTypeName name="java.sql.Date"/>
     <fullyQualifiedTypeName name="com.kh.myweb.common.model.vo.PageInfo"/>
     <fullyQualifiedTypeName name="com.kh.myweb.common.template.Pagination"/>
+    <fullyQualifiedTypeName name="org.springframework.ui.Model"/>
+    <fullyQualifiedTypeName name="jakarta.servlet.http.HttpSession"/>
+    <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="java.io.File"/>
 </qualifiedTypeNameHistroy>

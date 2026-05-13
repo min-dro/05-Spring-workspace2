@@ -161,11 +161,60 @@ SELECT COUNT(*)
 --  ? (위치홀더, 구멍) 자리에는 사용자가 입력한 keyword 가 들어가야 한다!
 
 
+-- 15. 목록을 구하는 쿼리문
+-- 검색 결과 목록 화면은 기존의 일반게시글 목록 화면을 재활용해서 
+-- 글번호, 카테고리명, 제목, 작성자의 아이디, 조회수, 작성일
+SELECT BOARD_NO
+     , CATEGORY_NAME AS CATEGORY
+     , BOARD_TITLE
+     , USER_ID
+     , COUNT
+     , CREATE_DATE
+  FROM BOARD B
+  JOIN CATEGORY USING (CATEGORY_NO)
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_TYPE = 1
+   AND B.STATUS = 'Y'
+--   AND USER_ID LIKE '%' || ? || '%' -- 작성자로 검색할 경우 (writer=ad) - 54 건
+--   AND BOARD_TITLE LIKE '%' || ? || '%' -- 제목으로 검색할 경우 (title=10) - 9 건
+   AND BOARD_CONTENT LIKE '%' || ? || '%' -- 내용으로 검색할 경우 (content=입니다) - 107 건
+ ORDER BY BOARD_NO DESC
+--> 마이바티스의 RowBounds 객체를 이용할 경우의 쿼리문 (인라인뷰 X)
 
+-- 16. 일반게시글 작성용 쿼리문
+-- 일반게시글 작성 시 필요하다면 첨부파일도 1개 같이 업로드 하기로 했음
+--> 경우의 수를 따져보자!!
+-- 16_1. 첨부파일 없이 게시글을 등록하고자 할 때
+-- BOARD 테이블에 INSERT 만 한번 하면 끝
+-- 16_2. 첨부파일이 있는 상태에서 게시글을 등록하고자 할 때
+-- BOARD 테이블에 INSERT 한 뒤
+-- 연달아 ATTACHMENT 테이블에도 INSERT 해줘야함
+INSERT INTO BOARD(BOARD_NO
+                , BOARD_TYPE
+                , CATEGORY_NO
+                , BOARD_TITLE
+                , BOARD_CONTENT
+                , BOARD_WRITER)
+           VALUES(SEQ_BNO.NEXTVAL
+                , 1
+                , ?
+                , ?
+                , ?
+                , ?)
+--> 이 중 카테고리번호, 제목, 내용을 사용자로부터 직접 입력받아야함!!
+--  또한, 작성자의 회원번호는 현재 로그인한 회원의 회원번호를 대면 된다!!
 
-
-
-
-
-
-
+INSERT INTO ATTACHMENT(FILE_NO
+                      , REF_BNO
+                      , ORIGIN_NAME
+                      , CHANGE_NAME
+                      , FILE_PATH)
+                 VALUES(SEQ_FNO.NEXTVAL
+                      , SEQ_BNO.CURRVAL
+                      , ?
+                      , ?
+                      , ?)
+--> 첨부파일 또한 입력받을 수 있도록 유도해야함!! (선택적으로 INSERT)
+--> 대전제 : 이 ATTACHMENT INSERT 구문은 반드시 BOARD INSERT 가 실행된 후에 실행되야함!!
+--         BOARD INSERT 후 COMMIT 은 아직 안된 상태!! (같은 트랜잭션으로 묶을거라서)
+--> 첨부파일의 참조게시글번호는 직전 INSERT 에서 발생되었던 게시글 시퀀스의 CURRVAL 값으로 넣어주면됨

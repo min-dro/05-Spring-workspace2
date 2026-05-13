@@ -1,19 +1,30 @@
 package com.kh.myweb.board.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.kh.myweb.board.model.service.BoardService;
+import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.common.model.vo.PageInfo;
 import com.kh.myweb.common.template.Pagination;
+import com.kh.myweb.common.template.XssDefencePolicy;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("board")
@@ -125,16 +136,17 @@ public class BoardController {
 	}
 
 	@GetMapping("search")
-	public void searchBoardList(String condition, String keyword, 
-								@RequestParam(value="cpage", defaultValue="1") int currentPage) {
+	public ModelAndView searchBoardList(String condition, String keyword, 
+								@RequestParam(value="cpage", defaultValue="1") int currentPage,
+								ModelAndView mv) {
 		
 		// System.out.println(condition);
 		// > 검색 조건 : "writer" / "title" / "content"
 		
 		// System.out.println(keyword);
-		// > 사용자가 입력한 검색어 : "30" / "10" / "30"
+		// > 사용자가 입력한 검색어 : "ad" / "10" / "입니다"
 		
-		// 위의 두 값을 가지고 검색을 하되, 페이징 처리까지 해줘야 함
+		// 위의 두 값을 가지고 검색을 하되, 페이징 처리까지 해 줘야 한다!!
 		// > 기본적으로 검색 시 검색 결과를 중 1번 페이지가 보여져야함!!
 		//   또한 검색 결과들 중 n번 페이지를 사용자가 요청할 수도 있음
 		//   (currentPage 값도 얻어내야함, 또한 7개의 변수도 마저 셋팅해야함)
@@ -149,14 +161,171 @@ public class BoardController {
 		map.put("condition", condition);
 		map.put("keyword", keyword);
 		
-		int searchCount = boardService.selectSearchCount(map); // 변수
+		int searchCount = boardService.selectSearchCount(map);
 		
+		// int currentPage;
+		
+		int pageLimit = 10;
+		int boardLimit = 10;
+		
+		// System.out.println(searchCount);
+		// System.out.println(currentPage);
+		
+		// 위의 searchCount, currentPage, pageLimit, boardLimit 를 가지도
+		// maxPage, startPage, endPage 를 계산해서 구해야함!!
+		// > 그리고 이걸 모두 PageInfo 로 한번에 가공해야함!!
+		PageInfo pi = Pagination.getPageInfo(searchCount, currentPage,
+											 pageLimit, boardLimit);
+		
+		// 위의 HashMap 과 PageInfo 둘 다 넘기면서 검색용 쿼리문을 실행해서 결과를 받아야함!!
+		ArrayList<Board> list = boardService.selectBoardList(map, pi);
+		
+		/*
+		for(Board b : list) {
+			
+			System.out.println(b);
+		}
+		*/
+		
+		// 위에서 구해진 list 와 pi 를 응답데이터로 넘기면서 결과 화면 포워딩
+		// > 기존의 게시글 목록 페이지 (boardListView.jsp) 를 재활용
+		
+		// 이 때, 검색 결과 창에 검색 조건, 검색어가 그대로 노출되었으면 좋겠음!!
+		// 검색 결과 창에서 페이징바를 클릭하면 다음 페이지로 넘어가면 검색이 풀리는 이슈도 있음
+		
+		// 해결방법)
+		// > 응답 데이터로 condition, keyword 를 다시 넘겨 주면 됨!!
+		
+		/*
+		mv.addObject("list", list);
+		mv.addObject("pi", pi);
+		mv.addObject("conditon", condition);
+		mv.addObject("keyword", keyword);
+		
+		mv.setViewName("board/boardListView");
+		*/
+		
+		// * ModelAndView 객체의 addObject 메소드는 return 타입이 ModelAndView 다!!
+		// > 즉, mv 객체 자기자신을 리턴한다.
+		mv.addObject("list", list)
+		  .addObject("pi", pi)
+		  .addObject("condition", condition)
+		  .addObject("keyword", keyword)
+		  .setViewName("board/boardListView");;
+		// > 그래서 위와 같이 메소드 체이닝이 가능하다!! (호출 순서 주의)
+		  
+		return mv;
 	}
 	
+	@GetMapping("enrollForm")
+	public String enrollForm() {
+		
+		return "board/boardEnrollForm";
+		// > WEB-INF/views/board/boardEnrollForm.jsp
+	}
 	
-	
+	@PostMapping("insert")
+	public String insertBoard(Board b, MultipartFile upfile, Model model, HttpSession session) {
+		// > 스프링에서 요청 시 전달값 중 첨부파일을 받고싶다면
+		//   MultipartFile 타입의 매개변수 객체로 받아준다!!
+		//   (단, 입력 form 에서 추가적인 속성을 작성해야함)
+		// > 이 때, 파일 업로드와 관련된 Spring 설정을 추가해야한다!! (application.properties 파일)
+		
+		// 요청 시 전달값들을 VO 로 받기 (커맨드 객체 방식)
+		// System.out.println(b);
+		// > category, boardTitle, boardContent, boardWriter
+		
+		// System.out.println(upFile);
+		// > MultipartFile 객체의 getOriginalFilename() 이라는 메소드를 호출해보자!!
+		//   넘어온 첨부파일의 원래 파일 명을 문자열로 리턴해주는 메소드임
+		// System.out.println(upfile.getOriginalFilename());
+		// > "bono.jpg" / "kuromi.png" / "" (빈 문자열)
+		//    넘어온 첨부파일이 있다면 원본파일명, 넘어온 첨부파일이 없다면 빈 문자열이 리턴됨!!
+		
+		// upfile 로 넘겨받은 첨부파일의 정보를 Attachment VO 객체로 가공
+		Attachment at = null;
+		
+		// 요청 시 넘어온 첨부파일이 있는지 부터 검사
+		if(!upfile.getOriginalFilename().equals("")) {
+			// > 넘어온 첨부파일이 있을 경우
+			
+			// 파일명 수정 작업 후 서버로 업로드
+			// (파일의 이름을 바꿔서 서버 컴퓨터에 해당 파일을 다운로드 하기)
+			// > 서버 컴퓨터의 어떤 폴더 안에 업로드된 파일들을 모두 다 저장하는 과정에서
+			//   우연치 않게 동일한 이름의 파일 여러개가 업로드 될 수 있으므로!! 이름이 겹치지 않도록!!
+			
+			// 예) "bono.jpg" -> "2026051315345612345.jpg"
+			// > 우리는 최대한 수정한 파일명들이 겹치지 않게끔
+			//   년월일시분초 + 랜덤수5자리 + 확장자명 으로 파일명을 수정해줄 예정!!
+			
+			// 1. 원본파일명 뽑아오기
+			String originName = upfile.getOriginalFilename(); // "bono.jpg"
+			
+			// 2. 시간 형식을 문자열로 뽑아내기
+			String currentTime = new SimpleDateFormat("yyyyMMddHHmmss")
+									.format(new Date()); // "20260513153954"
+			
+			// 3. 뒤에 붙을 5자리 랜덤수 뽑기
+			// > 10000 ~ 99999 사이로
+			int ranNum = (int)(Math.random() * 90000 + 10000); // 13159
+			
+			// 4. 원본파일명으로부터 확장자명 뽑기
+			String ext = originName.substring(originName.lastIndexOf(".")); // ".jpg"
+			// > 혹시라도 파일명 중간에 .이 있을 수도 있어서 마지막 .의 위치를 기준으로 substring
+			
+			// 5. 2 + 3 + 4 모두 이어 붙이기
+			String changeName = currentTime + ranNum + ext;
+			// > "2026051314395413159.jpg"
+			
+			// 6. 업로드 하고자 하는 서버 폴더의 물리적인 경로를 알아내기
+			// > 이 프로젝트 폴더 내부에 저장할 것!!
+			//   (이 프로젝트 1개 == 웹사이트 1개 == applicationScope)
+			// > applicationScope 내장객체 (ServletContent 타입) 로부터 저장할 경로를 알아내기
+			// > application 내장객체는 session 으로 부터 얻어낼 수 있다!!
+			
+			// 업로드된 파일들은 webapp 폴더의 resources/board_upfiles 폴더에 저장할 예정!!
+			String savePath = session.getServletContext()
+							  .getRealPath("/resources/board_upfiles/");
+			// 앞의 / 는 webapp 폴더를 나타내고, 뒤의 / 는 해당 폴더 "내부" 를 뜻함
+			//   (폴더 안에 파일이 저장되므로)
+			// > "C드라이브" 에서 부터 시작되는 board_upfiles 폴더의 풀 경로 (절대경로)
+			
+			// 7. 경로와 수정파일명 합체 후 파일 업로드 하기
+			try {
+				upfile.transferTo(new File(savePath + changeName));
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			// > 실제 파일이 업로드 된다!!
+			
+			// 8. 첨부파일에 대한 벙보를 Attachment at 객체에 담기
+			at = new Attachment();
+			at.setOriginName(originName); // 원본명 (사용자가 넘긴 이름)
+			at.setChangeName(changeName); // 수정명 (실제 서버에 업로드 되어있는 이름)
+			at.setFilePath("resources/board_upfiles");
+			
+		}
+		
+		// System.out.println(b);
+		// System.out.println(at);
+		// > 넘어온 첨부파일이 없다면 at == null
+		//   넘어온 첨부파일이 있다면 at != null (originName, changeName, filePath)
+		// 단, XSS 공격 방지 처리 하고 넘어가기
+		b.setBoardTitle(XssDefencePolicy.defence(b.getBoardTitle()));
+		b.setBoardContent(XssDefencePolicy.defence(b.getBoardContent()));
+		// Service 로 b, at 모두 다 넘기면서 요청 후 결과 받기 하나의 트랜잭션으로 묶기 위함)
+		int result = boardService.insertBoard(b, at);
+		
+		if(result > 0) {
+			
+			session.setAttribute("alertMsg", "게시글을 등록했습니다.");
+			
+			return "redirect:/";
+		} else {
+			model.addAttribute("errorMsg", "게시글을 등록하지 못했습니다.");
+			
+			return "common/errorPage";
+		}
+	}
+		
 }
-
-
-
-
