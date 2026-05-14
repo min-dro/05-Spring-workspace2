@@ -5,6 +5,26 @@
 <mapper namespace="boardMapper">
 
 	<!--  
+		CATEGORY 테이블로부터 조회된 result set 을
+		자바의 Category VO 객체로 가공해주는 resultMap
+	-->
+	<resultMap id="categoryResultSet" type="category">
+		<id column="CATEGORY_NO" property="categoryNo" />
+		<result column="CATEGORY_NAME" property="categoryName" />
+	</resultMap>
+
+	<!-- 
+		ATTACHMENT 테이블로부터 조회된 result set 을
+		자바의 Attachment VO 객체로 가공해주는 resultMap
+	-->	
+	<resultMap id="attachmentResultSet" type="attachment">
+		<id column="FILE_NO" property="fileNo" />
+		<result column="ORIGIN_NAME" property="originName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="FILE_PATH" property="filePath" />
+	</resultMap>
+	
+	<!--  
 		BOARD 테이블로부터 조회된 result set 을
 		자바의 Board VO 객체로 가공해주는 resultMap
 	-->
@@ -15,6 +35,8 @@
 		<result column="USER_ID" property="boardWriter" />
 		<result column="COUNT" property="count" />
 		<result column="CREATE_DATE" property="createDate" />
+		
+		<result column="BOARD_CONTENT" property="boardContent" />
 	</resultMap>
 
 	<!-- 게시글 총 겟수를 구하는 쿼리문 -->
@@ -160,5 +182,55 @@
                       , #{changeName}
                       , #{filePath})
 	</insert>
+	
+	<!-- 일반게시글 조회수 증가용 쿼리문 -->
+	<update id="increaseCount" parameterType="_int">
+		UPDATE BOARD
+		   SET COUNT = COUNT + 1
+		 WHERE BOARD_NO = #{boardNo}
+		   AND STATUS = 'Y'
+	</update>
+	
+	<!-- 일반게시글 상세조회용 쿼리문 -->
+	<select id="selectBoard" parameterType="_int" 
+							 resultMap="boardResultSet">
+		SELECT BOARD_NO
+	     , CATEGORY_NAME AS CATEGORY
+	     , BOARD_TITLE
+	     , USER_ID
+	     , BOARD_WRITER
+	     , BOARD_CONTENT
+	  FROM BOARD B
+	  JOIN CATEGORY USING (CATEGORY_NO)
+	  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+	 WHERE BOARD_NO = #{boardNo}
+	   AND B.STATUS = 'Y'
+	</select>
+	
+	<!--  -->
+	<select id="selectAttachment" parameterType="_int"
+								  resultMap="attachmentResultSet">
+		SELECT FILE_NO
+		     , ORIGIN_NAME
+		     , CHANGE_NAME
+		     , FILE_PATH
+		  FROM ATTACHMENT
+		 WHERE REF_BNO = #{boardNo}	
+	</select>
+	
+	<!-- 일반게시글 삭제용 쿼리문 -->
+	<update id="deleteBoard" parameterType="_int">
+		UPDATE BOARD
+		   SET STATUS = 'N'
+		 WHERE BOARD_NO = #{boardNo}
+		   AND STATUS = 'Y'
+	</update>
+	
+	<!--  카테고리 전체 조회용 쿼리문 -->
+	<select id="selectCategoryList" resultMap="categoryResultSet">
+		SELECT *
+		  FROM CATEGORY
+		 ORDER BY CATEGORY_NO ASC
+	</select>
 	
 </mapper>

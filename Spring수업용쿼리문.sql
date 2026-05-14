@@ -218,3 +218,46 @@ INSERT INTO ATTACHMENT(FILE_NO
 --> 대전제 : 이 ATTACHMENT INSERT 구문은 반드시 BOARD INSERT 가 실행된 후에 실행되야함!!
 --         BOARD INSERT 후 COMMIT 은 아직 안된 상태!! (같은 트랜잭션으로 묶을거라서)
 --> 첨부파일의 참조게시글번호는 직전 INSERT 에서 발생되었던 게시글 시퀀스의 CURRVAL 값으로 넣어주면됨
+
+-- 17. 게시글 조회수 증가용 쿼리문
+UPDATE BOARD
+   SET COUNT = COUNT + 1
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y'
+   
+-- 18. 게시글 상세조회용 쿼리문
+-- 카테고리명, 제목, 작성자의 아이디, 작성일, 내용을 출력해줄 예정
+-- + 눈에 보이지는 않지만 글번호도 함께 조회해올 예정!! (상세조회에서 수정, 삭제로 로직을 이어붙이려면 필요)
+SELECT BOARD_NO
+     , CATEGORY_NAME AS CATEGORY
+     , BOARD_TITLE
+     , USER_ID
+     , BOARD_WRITER
+     , BOARD_CONTENT
+  FROM BOARD B
+  JOIN CATEGORY USING (CATEGORY_NO)
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_NO = ?
+   AND B.STATUS = 'Y'
+   
+-- 19. 첨부파일 상세조회용 쿼리문
+SELECT FILE_NO
+     , ORIGIN_NAME
+     , CHANGE_NAME
+     , FILE_PATH
+  FROM ATTACHMENT
+ WHERE REF_BNO = ?
+ 
+-- 20. 게시글 삭제용 쿼리문 (UPDATE 문)
+UPDATE BOARD
+   SET STATUS = 'N'
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y'
+   
+-- 21. 게시글 수정용 쿼리문
+UPDATE BOARD
+   SET CATEGORY_NO = ?
+     , BOARD_TITLE = ?
+     , BOARD_CONTENT = ?
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y'

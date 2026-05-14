@@ -134,6 +134,22 @@
 			</tbody>
 		</table>
 
+		<script>
+			$(function() {
+				
+				// 게시글을 나타내는 tr 요소에 클릭이벤트 부여 (클릭 시 해당 게시글 상세조회 요청)
+				$(".list-area>tbody>tr").click(function() {
+					
+					let bno = $(this).children().eq(0).text();
+					
+					// console.log(bno);
+					
+					location.href = "/myweb/board/detail/" + bno;
+					
+				});
+			});
+		</script>
+
 		<br><br>
 
 		<!-- 페이징바 영역 -->
@@ -184,7 +200,6 @@
 			  			<c:choose>
 			  				<c:when test="${ empty requestScope.condition }">
 			  					<!-- 응답데이터로 condition 이 안넘어왔다면 (그냥 목록 조회일 경우) -->
-			  					
 			  					<li class="page-item">
 					  				<a class="page-link" href="/myweb/board/list?cpage=${ p }">${ p }</a>
 					  			</li>

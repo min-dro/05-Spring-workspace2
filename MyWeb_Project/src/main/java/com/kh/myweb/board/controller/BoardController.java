@@ -1,16 +1,14 @@
 package com.kh.myweb.board.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,10 +18,11 @@ import org.springframework.web.servlet.ModelAndView;
 import com.kh.myweb.board.model.service.BoardService;
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
+import com.kh.myweb.board.model.vo.Category;
 import com.kh.myweb.common.model.vo.PageInfo;
+import com.kh.myweb.common.template.FileRenamePolicy;
 import com.kh.myweb.common.template.Pagination;
 import com.kh.myweb.common.template.XssDefencePolicy;
-
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -218,14 +217,30 @@ public class BoardController {
 	}
 	
 	@GetMapping("enrollForm")
-	public String enrollForm() {
+	public String enrollForm(Model model) {
+	
+		// 일반게시글 등록 화면을 띄울 때
+		// 사용자가 추가하고자 하는 카테고리명들이 jsp 상에 하드코딩 되어있음!!
+		// > 만약, 카테고리 정보가 빈번하게 DB 상에 추가, 수정, 삭제될 일이 있다면?
+		//   그 때 마다 select - option 태그를 찾아다니면서 일일이 코드를 수정해야함!!
+		// > Category 테이블의 내용을 전체 조회 해서 응답데이터로 넘기기
+		ArrayList<Category> list = boardService.selectCategoryList();
+		
+		/*
+		for(Category c: list) {
+			
+			System.out.println(c);
+		}
+		*/
+		
+		model.addAttribute("list", list);
 		
 		return "board/boardEnrollForm";
 		// > WEB-INF/views/board/boardEnrollForm.jsp
 	}
 	
 	@PostMapping("insert")
-	public String insertBoard(Board b, MultipartFile upfile, Model model, HttpSession session) {
+	public String insertBoard(Board b, MultipartFile upfile, HttpSession session, Model model) {
 		// > 스프링에서 요청 시 전달값 중 첨부파일을 받고싶다면
 		//   MultipartFile 타입의 매개변수 객체로 받아준다!!
 		//   (단, 입력 form 에서 추가적인 속성을 작성해야함)
@@ -249,83 +264,150 @@ public class BoardController {
 		if(!upfile.getOriginalFilename().equals("")) {
 			// > 넘어온 첨부파일이 있을 경우
 			
-			// 파일명 수정 작업 후 서버로 업로드
-			// (파일의 이름을 바꿔서 서버 컴퓨터에 해당 파일을 다운로드 하기)
-			// > 서버 컴퓨터의 어떤 폴더 안에 업로드된 파일들을 모두 다 저장하는 과정에서
-			//   우연치 않게 동일한 이름의 파일 여러개가 업로드 될 수 있으므로!! 이름이 겹치지 않도록!!
-			
-			// 예) "bono.jpg" -> "2026051315345612345.jpg"
-			// > 우리는 최대한 수정한 파일명들이 겹치지 않게끔
-			//   년월일시분초 + 랜덤수5자리 + 확장자명 으로 파일명을 수정해줄 예정!!
-			
-			// 1. 원본파일명 뽑아오기
-			String originName = upfile.getOriginalFilename(); // "bono.jpg"
-			
-			// 2. 시간 형식을 문자열로 뽑아내기
-			String currentTime = new SimpleDateFormat("yyyyMMddHHmmss")
-									.format(new Date()); // "20260513153954"
-			
-			// 3. 뒤에 붙을 5자리 랜덤수 뽑기
-			// > 10000 ~ 99999 사이로
-			int ranNum = (int)(Math.random() * 90000 + 10000); // 13159
-			
-			// 4. 원본파일명으로부터 확장자명 뽑기
-			String ext = originName.substring(originName.lastIndexOf(".")); // ".jpg"
-			// > 혹시라도 파일명 중간에 .이 있을 수도 있어서 마지막 .의 위치를 기준으로 substring
-			
-			// 5. 2 + 3 + 4 모두 이어 붙이기
-			String changeName = currentTime + ranNum + ext;
-			// > "2026051314395413159.jpg"
-			
-			// 6. 업로드 하고자 하는 서버 폴더의 물리적인 경로를 알아내기
-			// > 이 프로젝트 폴더 내부에 저장할 것!!
-			//   (이 프로젝트 1개 == 웹사이트 1개 == applicationScope)
-			// > applicationScope 내장객체 (ServletContent 타입) 로부터 저장할 경로를 알아내기
-			// > application 내장객체는 session 으로 부터 얻어낼 수 있다!!
-			
-			// 업로드된 파일들은 webapp 폴더의 resources/board_upfiles 폴더에 저장할 예정!!
-			String savePath = session.getServletContext()
-							  .getRealPath("/resources/board_upfiles/");
-			// 앞의 / 는 webapp 폴더를 나타내고, 뒤의 / 는 해당 폴더 "내부" 를 뜻함
-			//   (폴더 안에 파일이 저장되므로)
-			// > "C드라이브" 에서 부터 시작되는 board_upfiles 폴더의 풀 경로 (절대경로)
-			
-			// 7. 경로와 수정파일명 합체 후 파일 업로드 하기
-			try {
-				upfile.transferTo(new File(savePath + changeName));
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
-			// > 실제 파일이 업로드 된다!!
+			String changeName = FileRenamePolicy.saveFile(upfile, session, "/resources/board_upfiles");
 			
 			// 8. 첨부파일에 대한 벙보를 Attachment at 객체에 담기
 			at = new Attachment();
-			at.setOriginName(originName); // 원본명 (사용자가 넘긴 이름)
+			at.setOriginName(upfile.getOriginalFilename()); // 원본명 (사용자가 넘긴 이름)
 			at.setChangeName(changeName); // 수정명 (실제 서버에 업로드 되어있는 이름)
-			at.setFilePath("resources/board_upfiles");
-			
+			at.setFilePath("resources/board_upfiles/");
 		}
 		
 		// System.out.println(b);
 		// System.out.println(at);
 		// > 넘어온 첨부파일이 없다면 at == null
 		//   넘어온 첨부파일이 있다면 at != null (originName, changeName, filePath)
+		
 		// 단, XSS 공격 방지 처리 하고 넘어가기
 		b.setBoardTitle(XssDefencePolicy.defence(b.getBoardTitle()));
 		b.setBoardContent(XssDefencePolicy.defence(b.getBoardContent()));
 		// Service 로 b, at 모두 다 넘기면서 요청 후 결과 받기 하나의 트랜잭션으로 묶기 위함)
 		int result = boardService.insertBoard(b, at);
-		
+		// 결과에 따른 응답페이지 처리
 		if(result > 0) {
+			// 최종 성공일 경우
 			
-			session.setAttribute("alertMsg", "게시글을 등록했습니다.");
+			// 1회성 알림 문구를 담아 일반게시판 목록 1번페이지로 url 재요청 (이동)
+			session.setAttribute("alertMsg", "성공적으로 게시글을 등록했습니다.");
 			
-			return "redirect:/";
+			return "redirect:/board/list";
+			
 		} else {
-			model.addAttribute("errorMsg", "게시글을 등록하지 못했습니다.");
+			// 실패한 경우
+			
+			// 첨부파일이 있었을 경우 이미 업로드된 파일을 굳이 서버에 보관할 이유가 없음!!
+			// > 서버 용량만 차지
+			if(at != null) {
+				// > 첨부파일이 있었을 경우
+				
+				// 삭제시키고자 하는 파일 객체 생성 후 delete 메소드 호출
+				
+				String savePath = session.getServletContext()
+										 .getRealPath("/resources/board_upfiles/");
+				
+				new File(savePath + at.getChangeName()).delete();
+			}
+			
+			// 에러문구를 담아서 에러패이지로 포워딩
+			model.addAttribute("errorMsg", "게시글 작성에 실패했습니다.");
 			
 			return "common/errorPage";
 		}
+		
+	}
+	
+	@GetMapping("detail/{boardNo}")
+	public String selectBoard(@PathVariable int boardNo, Model model) {
+		
+		//System.out.println(boardNo);
+		
+		// 우선 해당 게시글의 글번호를 넘기면서 조회수만 먼저 증가하고 돌아오기
+		int result = boardService.increaseCount(boardNo);
+		
+		// 조회수 증가에 성공했다면 그제서야 상세조회로 들어가기!!
+		if(result > 0) {
+			// > 조회수 증가 성공
+			
+			// 조회수 증가에 성공했다면 해당 게시글을 조회해오기
+			Board b = boardService.selectBoard(boardNo);
+			
+			// 또한 해당 게시글에 딸린 첨부파일 정보도 조회해오기
+			Attachment at = boardService.selectAttachment(boardNo);
+			// > 일반게시글은 게시글 하나당 첨부파일도 최대 1개이므로 단일행 조회임
+					
+			// 조회해온 위의 정보들을 응답데이터로 넘기기
+			model.addAttribute("b", b);
+			model.addAttribute("at", at);
+			
+			return "board/boardDetailView";
+			// > /WEB-INF/views/board/boardDetailView.jsp
+			
+		} else {
+			// > 조회수 증가 실패
+			
+			// 조회수 증가에 실패했다면 에러문구를 담아서 에러페이지로 포워딩
+			model.addAttribute("errorMsg", "게시글 상세조회에 실패했습니다.");
+			
+			return "common/errorPage";
+		}
+	}
+	
+	@PostMapping("delete")
+	public String deleteBoard(@RequestParam("bno") int boardNo,
+							  Model model, HttpSession session) {
+		
+		// System.out.println(boardNo);
+		
+		int result = boardService.deleteBoard(boardNo);
+		
+		if(result > 0) {
+			// > 게시글 삭제 성공
+			
+			// 도전문제 - 첨부파일이 있는 경우도 생각해보면 좋을 것 같음!! (옵션)
+			Attachment at = boardService.selectAttachment(boardNo);
+			if(at != null) {
+				boardService.deleteAttachment(boardNo);
+			}
+			// > 게시글 복구의 여지를 남겨두기 위해 첨부파일 관련된 것은 하나도 안건들였음!!
+			// 일회성 알림 문구를 담아서 일반게시판 목록 1번 페이지로 url 재요청
+			session.setAttribute("alertMsg", "성공적으로 게시글이 삭제되었습니다.");
+			return "redirect:/board/list";
+		} else {
+			// > 게시글 삭제 실패
+			// 에러 문구를 담아서 에러페이지로 포워딩
+			model.addAttribute("errorMsg", "게시글 삭제에 실패했습니다.");
+			
+			return "common/errorPage";
+		}
+	}
+	
+	@PostMapping("updateForm")
+	public ModelAndView updateForm(@RequestParam("bno") int boardNo,
+						   ModelAndView mv) {
+		
+		// 수정하기 페이지에서도 똑같이 카테고리 정보를 넘겨줄 것!!
+		ArrayList<Category> list = boardService.selectCategoryList();
+		
+		// 수정하기 페이지에서는 기존의 제목, 내용 등이 미리 보여야함!!
+		// > 해당 게시글을 조회해서 응답데이터로 보내줄 것!!
+		
+		// 기존 게시글 정보 먼저 조회해오기
+		Board b = boardService.selectBoard(boardNo);
+		// > boardNo, category, boardTitle, boardContent, createDate
+		//   (기존 상세보기 서비스 재활용)
+		
+		// 기존 첨부파일 정보도 조회해오기
+		Attachment at = boardService.selectAttachment(boardNo);
+		// > fileNo, originName, change, filePath
+		//   (기존 첨부파일 조회 서비스 재활용)
+		
+		mv.addObject("b", b)
+		  .addObject("at", at)
+		  .addObject("list", list)
+		  .setViewName("board/boardUpdateForm");
+		// > /WEB-INF/views/board/boardUpdateForm.jsp
+		
+		return mv;
 	}
 		
 }
