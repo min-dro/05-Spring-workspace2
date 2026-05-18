@@ -235,7 +235,7 @@ SELECT BOARD_NO
      , BOARD_WRITER
      , BOARD_CONTENT
   FROM BOARD B
-  JOIN CATEGORY USING (CATEGORY_NO)
+  LEFT JOIN CATEGORY USING (CATEGORY_NO)
   JOIN MEMBER ON (BOARD_WRITER = USER_NO)
  WHERE BOARD_NO = ?
    AND B.STATUS = 'Y'
@@ -247,7 +247,10 @@ SELECT FILE_NO
      , FILE_PATH
   FROM ATTACHMENT
  WHERE REF_BNO = ?
- 
+ ORDER BY FILE_NO ASC
+--> 정확도를 위해 파일번호가 작은 순서에서 부터 오름차순으로 정렬해서 보여지게끔 수정!!
+--  (썸네일 이미지가 제일 먼저 조회되라고, 아까 INSERT 했던 순서를 유지해서 조회하려고)
+
 -- 20. 게시글 삭제용 쿼리문 (UPDATE 문)
 UPDATE BOARD
    SET STATUS = 'N'
@@ -255,9 +258,113 @@ UPDATE BOARD
    AND STATUS = 'Y'
    
 -- 21. 게시글 수정용 쿼리문
+--> 상황에 따라 DML 문이 다르게 들어간다!!
+
+-- 1. 기존 첨부파일이 있든 없든 간에, 새로운 첨부파일이 없을 경우
+--    (ATTACHMENT 테이블을 조작하지 않아도 되는 상황)
+--> BOARD 테이블에 대해서만 UPDATE 진행
+
+-- 2. 기존 첨부파일이 없는 상황에서, 새로운 첨부파일이 있는 경우
+--> BOARD 테이블에 UPDATE 후, ATTACHMENT 테이블에 INSERT 진행
+
+-- 3. 기존 첨부파일이 있는 상황에서, 새로운 첨부파일이 있는 경우
+--> BOARD 테이블에 UPDATE 후, ATTACHMENT 테이블에
+
+-- 21_1. 게시글만 수정해주는 쿼리문
 UPDATE BOARD
    SET CATEGORY_NO = ?
      , BOARD_TITLE = ?
      , BOARD_CONTENT = ?
  WHERE BOARD_NO = ?
    AND STATUS = 'Y'
+   
+-- 21_2. 게시글 수정 시 새로 넘어온 첨부파일을 추가해주는 쿼리문
+-- (기존 게시글 작성 시 ATTACHMENT 의 INSERT 구문은 CURRVAL 때문에 재활용 불가)
+INSERT INTO ATTACHMENT(FILE_NO
+                     , REF_BNO
+                     , ORIGIN_NAME
+                     , CHANGE_NAME
+                     , FILE_PATH)
+               VALUES(SEQ_FNO.NEXTVAL)
+                     , ?
+                     , ?
+                     , ?
+                     , ?)
+                     
+-- 21_3. 게시글 수정 시 새로 넘어온 첨부파일로 수정해주는 쿼리문
+UPDATE ATTACHMENT
+   SET ORIGIN_NAME = ?
+     , CHANGE_NAME = ?
+     , UPLOAD_DATE = SYSDATE
+ WHERE FILE_NO = ?
+--> REF_BNO 로 변경 (해도 됨 - 게시글 한개 당 첨부파일이 하나만 들어가는 구조이기 때문)
+--  그래도 안전하게 한놈만 정확히 변경하기 위해 PRIMARY KEY 제약조건인 FILE_NO 으로 조건식을 작성!!
+--  (지금 BOARD 테이블과 ATTACHMENT 테이블은 첨부파일이 한개짜히 혹은 여러개짜리 일반게시글, 사진게시글을
+--   다 한번에 모아서 저장하는 구조이기 때문!!)
+
+-- 22. 사진게시글 등록용 쿼리문
+--> 사진게시글도 똑같이 BOARD 테이블에 INSERT 해야함!!
+--  또한 카테고리 정보는 굳이 안받을 예정임 (NULL)
+INSERT INTO BOARD(BOARD_NO
+                , BOARD_TYPE
+                , BOARD_TITLE
+                , BOARD_CONTENT
+                , BOARD_WRITER)
+           VALUES(SEQ_BNO.NEXTVAL
+                , 2
+                , ?
+                , ?
+                , ?)
+                
+-- 첨부파일들에 대한 ATTACHMENT INSERT 구문도 작성
+-- 넘어온 파일마다 원본명, 수정명, 파일경로, 파일레벨 까지는 필드로 셋팅해둠
+INSERT INTO ATTACHMENT(FILE_NO
+                     , REF_BNO
+                     , ORIGIN_NAME
+                     , CHANGE_NAME
+                     , FILE_PATH
+                     , FILE_LEVEL)
+                VALUES(SEQ_FNO.NEXTVAL
+                     , SEQ_BNO.CURRVAL
+                     , ?
+                     , ?
+                     , ?
+                     , ?)
+--> 위에서 이미 BOARD 에 INSERT 된 게시글에 딸린 첨부파일 정보이므로
+--  REF_BNO 컬럼값은 SEQ_BNO.CURRVAL 이 되야함!! (하나의 트랜잭션)
+
+-- 23. 사진게시글 목록조회용 쿼리문
+--> 첨부파일의 정보를 JOIN 을 통해 불러오되, 썸네일 정보만 불러와야함!!
+SELECT BOARD_NO
+     , BOARD_TITLE
+     , COUNT
+     , FILE_PATH || CHANGE_NAME AS "TITLEIMG"
+  FROM BOARD B
+  JOIN ATTACHMENT ON (BOARD_NO = REF_BNO)
+ WHERE BOARD_TYPE = 2
+   AND B.STATUS = 'Y'
+   AND FILE_LEVEL = 1
+ ORDER BY BOARD_NO DESC
+--> 이번에는 이왕이면 저장경로와 수정파일명을 || (연결연산자) 를 통해 한번에 풀 경로로 받아온다!!
+
+-- 24. 사진게시글 상세조회용 쿼리문
+SELECT BOARD_NO
+     , BOARD_TITLE
+     , BOARD_CONTENT
+     , USER_ID
+     , CREATE_DATE
+  FROM BOARD B
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_NO = 115
+   AND B.STATUS = 'Y'
+--> 우리는 사진게시글 상세조회용 쿼리문을 작성했고, 제대로 동작하는 것 까지 확인했음!!
+--  그런데 혹시 몰라서 기존의 일반게시글 상세조회용 쿼리문에서 CATEGORY 테이블을 조인하는 과정에서
+--  CATEGORY_NO 컬럼이 일치하는게 없더라도 BOARD 테이블에서 무조건 조회되게끔 기존의 INNER JOIN 을
+--  BOARD 테이블을 기준으로 삼아서 LEFT OUTRT JOIN 으로 바꿔봤더니
+--  기존 일반게시글 상세조회때도 문제 없고, 이번 사진게시글 상세조회때도 잘 동작하고 있음!!
+--> 기존의 쿼리문을 재활용 할 예정!! (24 번 쿼리문을 쓰지 않고 18 번 쿼리문을 수정해서 쓸 것임)
+
+-- 25. 첨부파일들 목록 조회용 쿼리문
+--> 마침 이전에 일반게시글에 딸린 첨부파일을 조회하는 19 번 쿼리문 에서
+--  참조게시글번호 (REF_BNO) 로 일치하는지를 조회하고 있기 때문에 충분히 사전게시글 상세조회 시에도 재활용 가능!!
+--> 단, 기존의 19 번 쿼리문에서 INSERT 한 순서대로 SELECT 해오기 위해 ORDER BY 절만 추가함

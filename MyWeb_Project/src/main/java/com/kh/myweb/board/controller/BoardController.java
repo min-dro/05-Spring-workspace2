@@ -264,7 +264,7 @@ public class BoardController {
 		if(!upfile.getOriginalFilename().equals("")) {
 			// > 넘어온 첨부파일이 있을 경우
 			
-			String changeName = FileRenamePolicy.saveFile(upfile, session, "/resources/board_upfiles");
+			String changeName = FileRenamePolicy.saveFile(upfile, session, "/resources/board_upfiles/");
 			
 			// 8. 첨부파일에 대한 벙보를 Attachment at 객체에 담기
 			at = new Attachment();
@@ -408,6 +408,102 @@ public class BoardController {
 		// > /WEB-INF/views/board/boardUpdateForm.jsp
 		
 		return mv;
+	}
+	
+	@PostMapping("update")
+	public String updateBoard(Board b, MultipartFile reUpfile,
+							  @RequestParam(defaultValue="0") int originalFileNo,
+							  String originalFileChangeName,
+							  HttpSession session,
+							  Model model) {
+		
+		// 요청 시 전달값들을 얻어내기 (커맨드 객체 방식)
+		// System.out.println(b);
+		// > boardNo, category, boardTitle, boardContent
+		//   (글번호와 변경할 내용들이 함께 넘어옴)
+		
+		// System.out.println(reUpfile.getOriginalFilename());
+		// > 변경할 첨부파일의 원본명
+		//   변경할 첨부파일이 있다면 제대로된 이름, 변경할 첨부파일이 없다면 "" (빈문자열)
+		
+		System.out.println(originalFileNo);
+		// > 기존 첨부파일의 파일번호
+		//   단, 기존 파일이 없을 경우는 int 형 변수에 null 값이 못들어가므로
+		//   defaultValue 속성으로 기본값 0 을 지정했음!!
+		
+		// DAO 까지 전달한 값들을 담기 위해 우선 null 로 초기화
+		Attachment at = null;
+		
+		// 새로 넘어온 첨부파일이 있을 경우
+		// > ATTACHMENT 테이블에 INSERT 또는 UPDATE 를 해야함!!
+		if(!reUpfile.getOriginalFilename().equals("")) {
+			
+			// 새로 넘어온 첨부파일의 이름을 수정 후 서버로 업로드
+			// 첨부파일에 대한 정보를 at 의 필드에 담기
+			
+			// 공통코드 FileRenamePolicy 클래스의 saveFile 메소드 호출
+			String changeName = FileRenamePolicy.saveFile(reUpfile, session, 
+														  "/resources/board_upfiles/");
+			
+			// insert 를 하든 update 를 하든 간에 originName, changeName 은 무조건 넘겨야함
+			at = new Attachment();
+			at.setOriginName(reUpfile.getOriginalFilename());
+			at.setChangeName(changeName);
+			
+			// 기존 첨부파일이 있었을 경우 
+			// 기존 첨부파일의 번호가 제대로 넘어온 경우 (originalFileNo 이 0 이 아닌 경우)
+			if(originalFileNo != 0) {
+				
+				// attachment 테이블에 update 문을 실행해야 하는 경우
+				// > fileNo 필드값을 추가적으로 셋팅해줘야함
+				at.setFileNo(originalFileNo);
+				
+				// 서버에 저장되어있던 기존의 첨부파일을 삭제시키기!! (용량만 차지)
+				// > 기존의 첨부파일의 수정파일명이 필요함!! (originalFileChangeName)
+				String savePath = session.getServletContext()
+										 .getRealPath("/resources/board_upfiles/");
+				new File(savePath + originalFileChangeName).delete();
+				
+			} else {
+				
+				// attachment 테이블에 insert 문을 실행해야 하는 경우
+				// > refNo, filePath 필드값을 추가적으로 셋팅해줘야함
+				at.setRefNo(b.getBoardNo());
+				at.setFilePath("resources/board_upfiles/");
+				
+			}
+		}
+		
+		// 이 기점 기준으로
+		// System.out.println(b);
+		// System.out.println(at);
+		// > 새로 넘어온 첨부파일이 없을 경우 : at == null
+		// > 기존 첨부파일 X, 새로 넘어온 첨부파일 O : at != null
+		//   (refNo, originName, change, filePath)
+		// > 기존 첨부파일 O, 새로 넘어온 첨부파일 O : at != null
+		//   (originName, changeName, fileNo)
+		
+		// 단, 이 시점에서 마찬가지로 XSS 공격 방지 처리 하기!!
+		b.setBoardTitle(XssDefencePolicy.defence(b.getBoardTitle()));
+		b.setBoardContent(XssDefencePolicy.defence(b.getBoardContent()));
+		// 이 경우를 모두 하나의 트랜잭션으로 묶어서 처리할 것
+		int result = boardService.updateBoard(b, at);
+		// 최종적으로 넘오온 result 에 따하 응답페이지를 지정
+		if(result > 0) {
+			// > 게시글 수정 성공
+		
+			// 일회성 알림 문구를 담아서 해당 게시글의 상세보기 페이지로 url 재요청
+			session.setAttribute("alertMsg", "성공적으로 게시글이 수정되었습니다.");
+			
+			return "redirect:/board/detail/" + b.getBoardNo();
+		} else {
+			// > 게시글 수정 실패
+			
+			// 에러 문구를 담아서 에러페이지로 포워딩
+			model.addAttribute("errorMsg", "게시글 수정에 실패했습니다.");
+			
+			return "common/errorPage";
+		}
 	}
 		
 }

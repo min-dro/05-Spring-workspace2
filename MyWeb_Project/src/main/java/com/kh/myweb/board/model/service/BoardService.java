@@ -107,7 +107,56 @@ public class BoardService {
 	}
 	
 	@Transactional
+	public int updateBoard(Board b, Attachment at) {
+		
+		// 뭐가 되었든 간에 일단 BOARD 테이블에 UPDATE 는 무조건 먼저 해야함!!
+		int result1 = boardDao.updateBoard(sqlSession, b);
+		
+		int result2 = 1;
+		
+		// 새로 넘어온 첨부파일이 있을 경우 ATTACHMENT 테이블에 DML 문을 실행함!!
+		if(at != null) {
+			
+			// UPDATE 할건지 INSERT 할건지를 가를 예정!!
+			if(at.getFileNo() != 0) {
+				// > fileNo 값이 제대로 있을 경우 (UPDATE 해야 할 경우)
+				
+				result2 = boardDao.updateAttachment(sqlSession, at);
+			
+			} else {
+				// > fileNo 값이 0 일 경우 (INSERT 해야 할 경우)
+			
+				result2 = boardDao.insertNewAttachment(sqlSession, at);
+			}
+		}
+		
+		// 이 시점 기준으로 쿼리문들이 모두 실행 됨!!
+		return result1 * result2;
+	}
+	@Transactional
 	public void deleteAttachment(int boardNo) {	
 		boardDao.deleteAttachment(sqlSession, boardNo);
 	}
+	@Transactional
+	public int selectThumbnailListCount() {
+		return boardDao.selectThumbnailListCount(sqlSession);
+	}
+	@Transactional
+	public int insertThumbnailBoard(Board b, ArrayList<Attachment> list) {	
+		// 우선 b 를 가지고 먼저 BOARD 에 INSERT 하고 돌아오기
+		int result1 = boardDao.insertThumbnailBoard(sqlSession, b);
+		// list 를 가지고 ATTACHMENT 에 INSERT 하고 돌아오기 때문에
+		// > 그냥 무조건 다녀올것!!
+		//   (대표이미지는 필수입력사항이였기 때문에 첨부파일이 항상 넘어오는 구조라서)
+		int result2 = boardDao.insertAttachmentList(sqlSession, list);
+		return result1 * result2;
+	}
+	public ArrayList<Board> selectThumbnailList(PageInfo pi) {
+		return boardDao.selectThumbnailList(sqlSession, pi);
+	}
+	public ArrayList<Attachment> selectAttachmentList(int boardNo) {
+		// DAO 단도 마찬가지로 리턴타입이 다르기 떄문에 DAO 메소드 재활용은 불가!!
+		return boardDao.selectAttachmentList(sqlSession, boardNo);
+	}
+
 }

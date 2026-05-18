@@ -171,7 +171,53 @@ public class BoardDao {
 		
 		return (ArrayList)sqlSession.selectList("boardMapper.selectCategoryList");
 	}
+
+	public int updateBoard(SqlSessionTemplate sqlSession, Board b) {
+		
+		return sqlSession.update("boardMapper.updateBoard", b);
+	}
+	
+	public int updateAttachment(SqlSessionTemplate sqlSession, Attachment at) {
+		
+		return sqlSession.update("boardMapper.updateAttachment", at);
+	}
+	
+	public int insertNewAttachment(SqlSessionTemplate sqlSession, Attachment at) {
+		
+		return sqlSession.insert("boardMapper.insertNewAttachment", at);
+	}
 	public void deleteAttachment(SqlSessionTemplate sqlSession, int boardNo) {
 		sqlSession.delete("boardMapper.deleteAttachment", boardNo);
+	}
+	public int selectThumbnailListCount(SqlSessionTemplate sqlSession) {
+		return sqlSession.selectOne("boardMapper.selectThumbnailListCount");
+	}
+	public int insertThumbnailBoard(SqlSessionTemplate sqlSession, Board b) {	
+		return sqlSession.insert("boardMapper.insertThumbnailBoard", b);
+	}
+	public int insertAttachmentList(SqlSessionTemplate sqlSession, ArrayList<Attachment> list) {
+		// 넘어온 첨부파일 갯수가 몇개인지 정확히 모름!!
+		// > 우리의 insert into 구문은 한번에 한개의 정보만 insert 가능!!
+		// > 반복문을 이용해서 insert into 구문을 첨부파일의 갯수만큼 실행시키기!!
+		int result = 1;
+		// > 초기값을 1로 셋팅해두고 누적 곱을 구할 예정!!
+		//   하나라도 실패하면 최종 결과가 0, 모두 성공해야지만 1
+		for(Attachment at : list) {
+			
+			result *= sqlSession.insert("boardMapper.insertAttachmentList", at);
+		}
+		
+		return result;
+	}
+	
+	public ArrayList<Board> selectThumbnailList(SqlSessionTemplate sqlSession, PageInfo pi) {
+		int limit = pi.getBoardLimit();
+		int offset = (pi.getCurrentPage() - 1) * limit;
+		RowBounds rowbounds = new RowBounds(offset, limit);
+		return  (ArrayList)sqlSession.selectList("boardMapper.selectThumbnailList", null, rowbounds);
+	}
+	public ArrayList<Attachment> selectAttachmentList(SqlSessionTemplate sqlSession, int boardNo) {	
+		// 드디어 쿼리문을 찾아서 실행할 경우에는 재활용이 됨!!
+		return (ArrayList)sqlSession.selectList("boardMapper.selectAttachment", boardNo);
 	}
 }

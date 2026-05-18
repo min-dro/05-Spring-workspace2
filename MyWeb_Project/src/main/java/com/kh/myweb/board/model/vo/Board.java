@@ -30,4 +30,7 @@ public class Board {
 	private Date createDate;		//	CREATE_DATE	DATE
 	private String status;			//	STATUS	VARCHAR2(1 BYTE)
 	
+	// 사진게시글 목록 조회 시 필요한 썸네일 이미지의 경로 + 수정파일명을 담을 필드를 추가
+	private String titleImg;
+	
 }
