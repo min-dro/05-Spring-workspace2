@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.kh.myweb.member.model.service.MemberService;
@@ -553,6 +554,40 @@ public class MemberController {
 		
 	}
 	
+	// -----------------------
+	@ResponseBody
+	@GetMapping("idCheck")
+	public String ajaxIdCheck(String checkId) {
+		
+		// System.out.println(checkId);
+		
+		// Service 로 전달값을 넘기면서 요청 후 결과 받기
+		int count = memberService.idCheck(checkId);
+		
+		// System.out.println(count);
+		// > count 가 1 이면 사용 불가한 아이디 / 0 이면 사용 가능한 아이디
+		//   (이미 사용 중인 아이디)
+		
+		// 처리 결과에 따라 응답데이터 넘기기
+		// > 이왕이면 네이버 회원가입의 응답값과 동일하게 넘겨보자!!
+		/*
+		if(count > 0) {
+			// > 존재하는 아이디가 이미 있을 경우 (사용 불가)
+			//   "NNNNN" 을 넘겨보자!!
+			
+			return "NNNNN";
+			
+		} else {
+			// > 존재하는 아이디가 없을 경우 (사용 가능)
+			//   "NNNNY" 를 넘겨보자!!
+			
+			return "NNNNY"
+		}
+		*/
+		
+		return (count > 0) ? "NNNNN" : "NNNNY";
+		// > 삼항연산자도 이용 가능!!
+	}
 	
 	
 }

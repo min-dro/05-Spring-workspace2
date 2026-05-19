@@ -72,6 +72,11 @@ public class MemberService {
 		
 		return memberDao.deleteMember(sqlSession, userId);
 	}
+
+	public int idCheck(String checkId) {
+		
+		return memberDao.idCheck(sqlSession, checkId);
+	}
 	
 	
 }

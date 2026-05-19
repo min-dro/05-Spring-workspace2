@@ -10,4 +10,5 @@
     <fullyQualifiedTypeName name="com.kh.myweb.common.template.FileRenamePolicy"/>
     <fullyQualifiedTypeName name="org.springframework.ui.Model"/>
     <fullyQualifiedTypeName name="com.kh.myweb.common.template.XssDefencePolicy"/>
+    <fullyQualifiedTypeName name="java.io.PrintWriter"/>
 </qualifiedTypeNameHistroy>

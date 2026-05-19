@@ -9,3 +9,5 @@ C:\05-Spring-workspace2\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\25
 \MyWeb_Project\src\main\java
 C:\05-Spring-workspace2\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2690467735.index
 \MyWeb_Project\src\main\java
+C:\05-Spring-workspace2\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\908441813.index
+\Ajax_Project\src\main\java
