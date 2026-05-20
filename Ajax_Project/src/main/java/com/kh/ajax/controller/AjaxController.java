@@ -1,12 +1,16 @@
 package com.kh.ajax.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.kh.ajax.model.vo.Member;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -185,5 +189,90 @@ public class AjaxController {
 		//   JSON 의 문자열 형식을 리턴해서 응답데이터를 넘길 수 있다!! (produces 설정 필수)
 	}
 
+	@ResponseBody
+	@GetMapping(value="jqAjax4", produces="application/json; charset=UTF-8")
+	public Member ajaxMethod4(int userNo, HttpServletResponse response) throws IOException {
+		
+		// System.out.println(userNo);
+		
+		// > DB 로 부터 해당 회원 한명의 정보를 조회해왔다 라는 가정 하에 응답할 데이터를 셋팅
+		Member m = new Member(userNo, "고길동", 50, "남");
+		
+		/*
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().print(m);
+		*/
+		// > 그냥 출력 스트림으로 Member 객체인 m 을 응답하게 되면
+		//   내부적으로 toString() 메소드가 호출되면서 각 필드값이 하나의 문자열로 연이어져서 넘어가게 된다.
+		
+		// > 그래서 JSON 을 활용해볼 것!!
+		//   JSONObject 를 활용해서 응답해볼 것
+		//	 {속성명 : 속성값, 속성명 : 속성값, ...}
+		// > 속성명 자리에는 m 의 필드명을, 속성값 자리에는 해당 필드의 필드값을 담아볼 것
+		
+		/*
+		JSONObject jObj = new JSONObject(); // {}
+		jObj.put("userNo", m.getUserNo());
+		jObj.put("userName", m.getUserName());
+		jObj.put("age", m.getAge());
+		jObj.put("gender", m.getGender()); // {userNo : 1, userName : "고길동", age : 50, gender : "남"}
+		
+		return jObj.toJSONString(); // '{userNo : 1, userName : "고길동", age : 50, gender : "남"}'
+		*/
+		
+		// > 자바 VO 객체 단위를 응답데이터를 넘겨야 할 경우에는 JSONObject 타입으로 옮겨 담은 후 넘겨준다!!
+		//   이 때, 속성명을 통상적으로 필드명과 동일하게 잡고 넘겨준다.
+		// > 단, VO 필드 갯수만큼 일일이 다 JSON 으로 옮겨담는게 정석이나,
+		//   코드가 불필요하게 길어지고, 실수할 가능성도 높아진다!!
+		// > 그래서 Spring Boot 에서는 기본적으로 jackson 이라는 라이브러리를 제공해준다.
+		
+		return m;
+		// > 해당 메소드의 리턴 타입을 내가 응답데이터로 넘기고자 하는 VO 타입으로 지정한 후,
+		//   해당 VO 객체를 그냥 직접 return 해주면 된다!!
+		// > 내부적으로 해당 VO 객체가 jackson 라이브러리에 의해 VO -> JSONObject 형식으로 알아서 가공 된 후
+		//   응답데이터로 넘어가는 원리
+		//   (이 때, 심지어 JSONObject 의 속성명은 자동으로 해당 VO 객체의 필드명으로 잡힌다)
+	
+	}
 
+	@ResponseBody
+	@PostMapping("jqAjax5")
+	public ArrayList<Member> ajaxMethod5() {
+		
+		// 회원 전체조회 요청을 처리했다 라는 가정 하에 응답할 데이터를 셋팅
+		// > 전체 회원들의 정보가 담겨있는 ArrayList
+		
+		ArrayList<Member> list = new ArrayList<>();
+		
+		list.add(new Member(1, "고길동", 50, "남"));
+		list.add(new Member(2, "김갑생", 23, "여"));
+		list.add(new Member(3, "박말순", 39, "남"));
+		list.add(new Member(4, "강개똥", 44, "여"));
+		list.add(new Member(5, "박말똥", 37, "남"));
+		list.add(new Member(6, "김말똥", 26, "여"));
+		// > MyBatis 를 통해 받아올 내용임!! (나중에 직접 코드로는 작성하지 않음)
+		
+		// list 를 응답데이터로 넘기기 위해서는 JSON 형식으로 변환을 해줘야함!!
+		// > VO 객체 한개 --> JSONObject
+		//   ArrayList 한개 --> JSONArray
+		
+		/*
+		JSONArray jArr = new JSONArray(); // []
+		
+		for(Member m : list) {
+			
+			JSONObject jObj = new JSONObject(); // {}
+			jObj.put("userNo", m.getUserNo());
+			// ..
+			
+			jArr.add(m);
+		}
+		*/
+		// > 원래대로라면 이렇게 일일이 옮겨줘야 한다!!
+		// > 마찬가지로 jackson 라이브러리를 이용하면 자동으로 가공해서 넘겨준다!!
+		
+		return list;
+	}
+
+	
 }

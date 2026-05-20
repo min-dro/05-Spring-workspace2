@@ -369,6 +369,8 @@ public class MemberController {
 	@GetMapping("myPage")
 	public ModelAndView myPage(ModelAndView mv) {
 		
+		// System.out.println("여기는 마이페이지야");
+		
 		// myPage.jsp 에서 각 input 요소의 value 속성값으로
 		// 현재 로그인한 사용자의 각각의 알맞은 정보들이 출력되야함!!
 		// > 응답페이지에서 필요로 하는 데이터 == 현재 로그인한 회원의 데이터

@@ -19,7 +19,7 @@ public class Board {
 	private int boardNo;			//	BOARD_NO	NUMBER
 	private int boardType;			//	BOARD_TYPE	NUMBER
 	private String category;		//	CATEGORY_NO	NUMBER
-	// > "10" (작성 또는 수정 시 숫자 현태의 카데고리 번호) / "공통" (조회 기능 구현 시 문자열 형태의 카테고리명)
+	// > "10" (작성 또는 수정 시 숫자 형태의 카데고리 번호) / "공통" (조회 기능 구현 시 문자열 형태의 카테고리명)
 	
 	private String boardTitle;		//	BOARD_TITLE	VARCHAR2(100 BYTE)
 	private String boardContent;	//	BOARD_CONTENT	VARCHAR2(4000 BYTE)

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -19,10 +20,12 @@ import com.kh.myweb.board.model.service.BoardService;
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.board.model.vo.Category;
+import com.kh.myweb.board.model.vo.Reply;
 import com.kh.myweb.common.model.vo.PageInfo;
 import com.kh.myweb.common.template.FileRenamePolicy;
 import com.kh.myweb.common.template.Pagination;
 import com.kh.myweb.common.template.XssDefencePolicy;
+import com.kh.myweb.member.model.vo.Member;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -335,6 +338,10 @@ public class BoardController {
 			Attachment at = boardService.selectAttachment(boardNo);
 			// > 일반게시글은 게시글 하나당 첨부파일도 최대 1개이므로 단일행 조회임
 					
+			// 댓글 목록 조회 기능 구현 방법 1
+			// > 게시글 상세조회 시 그 게시글에 딸린 댓글들도 조회해와서 응답데이터로 넘겨서 뿌려주기
+			//   (동기식 방식으로 구현)
+			
 			// 조회해온 위의 정보들을 응답데이터로 넘기기
 			model.addAttribute("b", b);
 			model.addAttribute("at", at);
@@ -426,7 +433,7 @@ public class BoardController {
 		// > 변경할 첨부파일의 원본명
 		//   변경할 첨부파일이 있다면 제대로된 이름, 변경할 첨부파일이 없다면 "" (빈문자열)
 		
-		System.out.println(originalFileNo);
+		// System.out.println(originalFileNo);
 		// > 기존 첨부파일의 파일번호
 		//   단, 기존 파일이 없을 경우는 int 형 변수에 null 값이 못들어가므로
 		//   defaultValue 속성으로 기본값 0 을 지정했음!!
@@ -496,6 +503,7 @@ public class BoardController {
 			session.setAttribute("alertMsg", "성공적으로 게시글이 수정되었습니다.");
 			
 			return "redirect:/board/detail/" + b.getBoardNo();
+			
 		} else {
 			// > 게시글 수정 실패
 			
@@ -505,5 +513,43 @@ public class BoardController {
 			return "common/errorPage";
 		}
 	}
+
+	// --------------------------
+	
+	@ResponseBody
+	@PostMapping("rinsert")
+	public String ajaxInsertReply(Reply r, HttpSession session) {
 		
+		// System.out.println(r);
+		// > Ajax 에서도 요청 시 전달값을 커맨드 객체 방식으로 받을 수 있음!!
+		// > replyContent, refBoardNo 값이 넘어왔음
+		
+		// 추가적으로 댓글 작성자 (현재 로그인한 회원) 의 회원번호도 session 으로 부터 뽑아내기
+		// > r 의 replyWriter 필드로 집어넣을것!!
+		int replyWriter = ((Member)(session.getAttribute("loginUser"))).getUserNo();
+		
+		// r.setReplyWriter(String.valueOf(replyWriter));
+		r.setReplyWriter(replyWriter + "");
+		// > replyWriter 변수를 String 으로 변환해서 필드에 담아야한다!!
+		// > replyContent, refBoardNo, replyWriter
+		
+		// XSS 공격 방지
+		r.setReplyContent(XssDefencePolicy.defence(r.getReplyContent()));
+		int result = boardService.insertReply(r);
+		// > result > 0 이면 댓글 작성 성공!
+		
+		return (result > 0) ? "success" : "fail";
+	}
+	
+	@ResponseBody
+	@GetMapping("rlist")
+	public ArrayList<Reply> ajaxSelectReplyList(int boardNo) {
+		
+		// System.out.println(boardNo);
+		
+		ArrayList<Reply> list = boardService.selectReplyList(boardNo);
+		
+		return list;
+	}
+	
 }

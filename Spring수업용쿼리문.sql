@@ -232,7 +232,7 @@ SELECT BOARD_NO
      , CATEGORY_NAME AS CATEGORY
      , BOARD_TITLE
      , USER_ID
-     , BOARD_WRITER
+     , CREATE_DATE
      , BOARD_CONTENT
   FROM BOARD B
   LEFT JOIN CATEGORY USING (CATEGORY_NO)
@@ -377,3 +377,26 @@ SELECT COUNT(*)
  WHERE USER_ID = ?
 --> 중복된 아이디가 이미 있다면 1, 없다면 0
 --> 탈퇴를 했든 안했든 간에 무조건 UNIQUE 제약조건인 USER_ID 컬럼에 있는 아이디값으로는 회원가입 불가!!
+
+--------------------------------------------------------------------------------
+
+-- 27. 댓글 작성용 쿼리문
+INSERT INTO REPLY(REPLY_NO
+                , REPLY_CONTENT
+                , REF_BNO
+                , REPLY_WRITER)
+           VALUES(SEQ_RNO.NEXTVAL
+                , ?
+                , ?
+                , ?)
+                
+-- 28. 댓글 목록 조회용 쿼리문
+SELECT REPLY_NO
+     , REPLY_CONTENT
+     , USER_ID
+     , TO_CHAR(CREATE_DATE, 'YY/MM/DD HH:MI:SS') "CREATE_DATE"
+  FROM REPLY R
+  JOIN MEMBER ON (REPLY_WRITER = USER_NO)
+ WHERE REF_BNO = ?
+   AND R.STATUS = 'Y'
+ ORDER BY REPLY_NO DESC

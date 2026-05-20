@@ -73,7 +73,7 @@
 		- $.ajax 라는 jQuery 메소드를 호출하고 이 때, 인자로 {} (자바스크립트 객체) 를 넘겨준다!!
 		- 인자 객체 내부에 속성명 : 속성값들을 이용해서 요청과 응답에 대한 정보를 기술한다.
 		
-		* 주요 속성 (반드시 암기할 것!!)
+		* 주요 속성 (반드시 암기할 것!!) ★기술면접 나옴★
 		- url : 요청할 url 주소 (필수로 작성해야 하는 속성임)
 				즉, 어디로 요청을 보낼꺼냐 적는 부분 (form 태그로 따지면 action 속성의 역할)
 		- type 또는 method : 요청 전송 방식 (get / post)
@@ -300,7 +300,62 @@
 	
 	<!-- 
 		즉, DB 로부터 "단일행 조회" 한 결과를 응답데이터로 받아보기
+		
+		예) Member VO 클래스를 하나 만들고,
+		   회원번호를 입력받아서 Controller 로 전달 후 DB 로 부타 조회해왔다 라는 가정 하에
+		   Member VO 객체 하나를 응답데이터로 넘겨볼 것!!  
 	-->
+	
+	회원번호 : <input type="number" id="input4">
+	
+	<button onclick="test4();">조회</button>
+	<!-- submit 버튼은 form 태그 밖에 있는 순간 그 역할을 다 못함!! (앞으로 생략해볼 것) -->
+	
+	<br><br>
+	
+	<div id="output4"></div>
+	
+	<script>
+		function test4() {
+			
+			// 입력받은 회원번호 먼저 변수에 담기
+			let userNo = $("#input4").val();
+			
+			$.ajax({
+				url : "/ajax/jqAjax4",
+				type : "get",
+				data : { 
+					userNo : userNo
+				},
+				success : function(result) {
+					
+					console.log(result);
+					
+					/*
+					console.log(result.userNo);
+					console.log(result.userName);
+					console.log(result["age"]);
+					console.log(result["gender"]);
+					*/
+					
+					let resultStr = "회원번호 : " + result.userNo
+								  + "<br>"
+								  + "이름 : " + result.userName
+								  + "<br>"
+								  + "나이 : " + result.age
+								  + "<br>"
+								  + "성별 : " + result.gender;
+					
+					$("#output4").html(resultStr);
+					
+				},
+				error : function() {
+					
+					console.log("ajax 통신 실패!");
+				}
+			});
+		}
+	</script>
 	
 	<br><br>
 	
@@ -310,7 +365,64 @@
 	
 	<!--  
 		즉, DB 로 부터 "여러행 조회" 된 결과를 응답데이터로 받아보기
+		
+		예) 관리자페이지에서 회원 전체 목록 조회 기능을 만든다고 가정하고
+		    회원들의 데이터가 모두 담겨있는 ArrayList<Member> 를 응답데이터로 받아보자
 	-->
+	
+	<button onclick="test5();">회원 전체 조회</button>
+	
+	<br><br>
+	
+	<table id="output5" border="1">
+		<thead>
+			<tr>
+				<th>회원번호</th>
+				<th>회원명</th>
+				<th>나이</th>
+				<th>성별</th>
+			</tr>
+		<thead>
+		<tbody></tbody>
+	</table>
+	
+	<script>
+		function test5() {
+			
+			$.ajax({
+				url : "/ajax/jqAjax5",
+				type : "post",
+				success : function(result) {
+					
+					console.log(result);
+					// > [{}, {}, {}, ..]
+					
+					let resultStr = "";
+					
+					for(let i = 0; i < result.length; i++) {
+						
+						// console.log(result[i].userName);
+						
+						resultStr += "<tr>"
+								   + 		"<td>" + result[i].userNo + "</td>"
+								   + 		"<td>" + result[i].userName + "</td>"
+								   + 		"<td>" + result[i].age + "</td>"
+								   + 		"<td>" + result[i].gender + "</td>"
+								   + "</tr>";
+						
+					}
+					
+					$("#output5 tbody").html(resultStr);
+					
+				},
+				error : function() {
+					
+					console.log("ajax 통신 실패!!");
+				}
+			});
+			
+		}
+	</script>
 	
 </body>
 </html>
