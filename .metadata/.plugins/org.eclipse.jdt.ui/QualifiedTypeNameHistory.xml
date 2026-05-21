@@ -14,4 +14,7 @@
     <fullyQualifiedTypeName name="com.kh.myweb.common.template.XssDefencePolicy"/>
     <fullyQualifiedTypeName name="com.kh.myweb.member.model.vo.Member"/>
     <fullyQualifiedTypeName name="org.json.simple.JSONArray"/>
+    <fullyQualifiedTypeName name="jakarta.activation.DataSource"/>
+    <fullyQualifiedTypeName name="java.util.Collections"/>
+    <fullyQualifiedTypeName name="java.net.URL"/>
 </qualifiedTypeNameHistroy>

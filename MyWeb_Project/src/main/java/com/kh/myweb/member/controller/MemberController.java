@@ -13,6 +13,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.kh.myweb.member.model.service.MemberService;
 import com.kh.myweb.member.model.vo.Member;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /*
@@ -75,7 +77,76 @@ public class MemberController {
 	
 	// @PostMapping("member/login")
 	@PostMapping("login")
-	public String loginMember(Member m, Model model, HttpSession session) {
+	public String loginMember(Member m, String saveId, Model model,
+							  HttpSession session, HttpServletResponse response) {
+		
+		// 아이디 저장 기능 추가
+		// System.out.println("아이디 저장 여부 : " + saveId);
+		// > 아이디를 저장하겠다 : 체크 시 saveId 가 "y"
+		//   아이디를 저장하지 않겠다 : 체크 X 시 saveId 가 null
+		
+		// 2. 아이디 저장 여부에 따른 쿠키 생성
+		if((saveId != null) && (saveId.equals("y"))) {
+			// > 아이디를 저장하고 싶은 경우
+			//   아이디값을 "쿠키" 로 저장한다.
+			
+			/*
+			 * * 쿠키 (Cookie)
+			 * 
+			 * - 웹 사이트를 구동시키는 "서버" 에서 사용자의 컴퓨터 "브라우저" 에 저장하는 데이터
+			 * - 쿠키를 만드는 주체 : 서버 (Controller 단)
+			 * - 쿠키를 저장하는 주체 : 브라우저 (화면을 띄워주는 부분)
+			 * 
+			 * - 개발자 도구 탭에서 조회, 추가, 수정, 삭제가 언제든지 가능하기 때문에
+			 *   주로 보안과 관련 없는 기능을 구현할 때 쓰는 것이 좋음
+			 *   예) 아이디 저장, 광고 팝업창 띄우기, 최근 본 상품 (비로그인 시) 등
+			 *       로그인 유지 (권장 X)
+			 * 
+			 * - 항상 쿠키의 데이터는 키 + 밸류 형식으로 저장된다!!
+			 * - 또한 만료시간의 개념도 있어서, 만료시간이 지나면 그 데이터는 자동으로 사라진다.
+			 * 
+			 * * 쿠키 사용법
+			 * 1. 쿠키 생성 (서버 단에서 코드로 작성)
+			 * Cookie cookie = new Cookie("키값", "밸류값");
+			 * > 단, 키와 밸류 모두 "문자열" 타입으로 지정해야 한다!!
+			 * > 키값은 중복 불가!! (중복 시 밸류값이 덮어씌워짐)
+			 * 
+			 * 2. 만들어진 쿠키의 만료시간을 지정 가능 (옵션)
+			 * cookie.setMaxAge(초단위로만료시간지정);
+			 * 
+			 * 3. 이 쿠키를 어느 웹사이트에서만 이용할건지 설정 (필수)
+			 * cookie.sePath("/contextPath/");
+			 */
+			
+			// 쿠키에 아이디를 저장해보기
+			Cookie cookie = new Cookie("saveId", m.getUserId());
+			cookie.setMaxAge(1 * 24 * 60 * 60); // 1일 (초단위)
+			cookie.setPath("/myweb/"); // 이 쿠키를 우리 웹사이트 내부에서만 이용 가능하게끔
+		
+			/*
+			 * 4. 쿠키를 생성했다면 저장은 브라우저에 해야 함!!
+			 * 생성된 쿠키를 브라우저가 받아볼 수 있도록 응답 정보에 첨부하기
+			 * response.addCookie(cookie);
+			 */
+			
+			response.addCookie(cookie);
+			
+		} else {
+			// > 아이디를 저장하지 않을 경우
+			//   아이디값을 갖고 있던 "쿠키" 를 삭제
+			
+			/*
+			 * 5. 쿠키 삭제
+			 * > 쿠키를 삭제하는 구문은 따로 정의 되지 않음!! (삭제용 메소드가 별도로 존재 X)
+			 * > 단, 쿠키를 똑같은 키값으로 하나 더 만들고, 만료시간을 0초로 지정해서 덮어씌워주면 됨
+			 */
+			
+			Cookie cookie = new Cookie("saveId", m.getUserId());
+			cookie.setMaxAge(0);
+			cookie.setPath("/myweb/");
+			
+			response.addCookie(cookie);
+		}
 		
 		// System.out.println("잘 호출되나?");
 		
